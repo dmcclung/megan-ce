@@ -21,8 +21,8 @@ package megan.commands.additional;
 import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.ClassificationManager;
 import megan.classification.data.Name2IdMap;
@@ -116,7 +116,7 @@ public class CorrelateClassToAttributeCommand extends CommandBase implements ICo
         final ClassificationViewer viewer = (ClassificationViewer) getViewer();
         final Collection<Integer> ids = viewer.getSelectedIds();
         if (ids.size() > 0 && list.size() > 0) {
-            final String[] choices = list.toArray(new String[list.size()]);
+            final String[] choices = list.toArray(new String[0]);
             String choice = ProgramProperties.get("CorrelateToAttribute", choices[0]);
             if (!list.contains(choice))
                 choice = choices[0];

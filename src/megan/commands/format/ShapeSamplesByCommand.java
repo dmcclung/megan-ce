@@ -24,9 +24,9 @@ import javafx.scene.control.ChoiceDialog;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.graphview.NodeShape;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.core.Document;
@@ -52,7 +52,7 @@ public class ShapeSamplesByCommand extends CommandBase implements ICommand {
 
         java.util.Collection<String> samples;
         if (getViewer() instanceof SamplesViewer) {
-            samples = ((SamplesViewer) getViewer()).getSamplesTable().getSelectedSamples();
+            samples = ((SamplesViewer) getViewer()).getSamplesTableView().getSelectedSamples();
         } else
             samples = doc.getSampleAttributeTable().getSampleSet();
 
@@ -62,11 +62,7 @@ public class ShapeSamplesByCommand extends CommandBase implements ICommand {
         for (String sample : samples) {
             Object value = doc.getSampleAttributeTable().get(sample, attribute);
             if (value != null) {
-                Integer count = value2Count.get(value.toString());
-                if (count == null) {
-                    value2Count.put(value.toString(), 1);
-                } else
-                    value2Count.put(value.toString(), count + 1);
+                value2Count.merge(value.toString(), 1, Integer::sum);
             }
         }
 
@@ -75,11 +71,7 @@ public class ShapeSamplesByCommand extends CommandBase implements ICommand {
         for (String value : value2Count.keySet()) {
             pairs[i++] = new Pair<>(value2Count.get(value), value);
         }
-        Arrays.sort(pairs, new Comparator<Pair<Integer, String>>() {
-            public int compare(Pair<Integer, String> p1, Pair<Integer, String> p2) {
-                return -p1.compareTo(p2);
-            }
-        });
+        Arrays.sort(pairs, (p1, p2) -> -p1.compareTo(p2));
 
         Map<String, NodeShape> value2shape = new HashMap<>();
         int count = 0;
@@ -112,34 +104,26 @@ public class ShapeSamplesByCommand extends CommandBase implements ICommand {
 
         if (attributes.size() > 0) {
             final JFrame frame = getViewer().getFrame();
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    String defaultChoice = ProgramProperties.get("SetByAttribute", "");
+            Platform.runLater(() -> {
+                String defaultChoice = ProgramProperties.get("SetByAttribute", "");
 
-                    if (!attributes.contains(defaultChoice))
-                        defaultChoice = attributes.get(0);
+                if (!attributes.contains(defaultChoice))
+                    defaultChoice = attributes.get(0);
 
-                    ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, attributes);
-                    dialog.setTitle("MEGAN6 " + getViewer().getClassName() + " choice");
-                    dialog.setHeaderText("Select attribute to shape by");
-                    dialog.setContentText("Choose attribute:");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, attributes);
+                dialog.setTitle("MEGAN6 " + getViewer().getClassName() + " choice");
+                dialog.setHeaderText("Select attribute to shape by");
+                dialog.setContentText("Choose attribute:");
 
-                    if (frame != null) {
-                        dialog.setX(frame.getX() + (frame.getWidth() - 200) / 2);
-                        dialog.setY(frame.getY() + (frame.getHeight() - 200) / 2);
-                    }
+                if (frame != null) {
+                    dialog.setX(frame.getX() + (frame.getWidth() - 200) / 2);
+                    dialog.setY(frame.getY() + (frame.getHeight() - 200) / 2);
+                }
 
-                    final Optional<String> result = dialog.showAndWait();
-                    if (result.isPresent()) {
-                        final String choice = result.get();
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                execute("shapeBy attribute='" + choice + "';");
-                            }
-                        });
-                    }
+                final Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    final String choice = result.get();
+                    SwingUtilities.invokeLater(() -> execute("shapeBy attribute='" + choice + "';"));
                 }
             });
         }

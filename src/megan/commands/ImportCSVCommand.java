@@ -19,11 +19,12 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.swing.util.TextFileFilter;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.ClassificationManager;
 import megan.core.Director;
@@ -31,7 +32,6 @@ import megan.core.Document;
 import megan.core.MeganFile;
 import megan.dialogs.importcsv.ImportCSVWindow;
 import megan.dialogs.parameters.ParametersDialogSmall;
-import megan.fx.NotificationsInSwing;
 import megan.inspector.InspectorWindow;
 import megan.main.MeganProperties;
 import megan.parsers.CSVReadsHitsParser;
@@ -117,7 +117,7 @@ public class ImportCSVCommand extends CommandBase implements ICommand {
                 if (minSupport != -1)
                     doc.setMinSupport(minSupport);
 
-                CSVReadsHitsParser.apply(fileName, doc, cNames.toArray(new String[cNames.size()]), tabSeparator);
+                CSVReadsHitsParser.apply(fileName, doc, cNames.toArray(new String[0]), tabSeparator);
 
                 if (dir.getViewerByClass(InspectorWindow.class) != null)
                     ((InspectorWindow) dir.getViewerByClass(InspectorWindow.class)).clear();
@@ -157,7 +157,7 @@ public class ImportCSVCommand extends CommandBase implements ICommand {
                 doc.neverOpenedReads = false;
                 doc.clearReads();
 
-                CSVSummaryParser.apply(fileName, doc, cNames.toArray(new String[cNames.size()]), tabSeparator, multiplier);
+                CSVSummaryParser.apply(fileName, doc, cNames.toArray(new String[0]), tabSeparator, multiplier);
                 if (dir.getViewerByClass(InspectorWindow.class) != null)
                     ((InspectorWindow) dir.getViewerByClass(InspectorWindow.class)).clear();
                 viewer.collapseToDefault();
@@ -187,8 +187,8 @@ public class ImportCSVCommand extends CommandBase implements ICommand {
         File lastOpenFile = ProgramProperties.getFile(MeganProperties.CSVFILE);
 
         List<File> files = ChooseFileDialog.chooseFilesToOpen(getViewer().getFrame(), lastOpenFile,
-                new TextFileFilter(new String[]{"csv", "tsv", "csv", "tab"}), new TextFileFilter(new String[]{"csv", "tsv", "csv", "tab"}), event, "Open CSV file");
-        if (files != null && files.size() > 0) {
+                new TextFileFilter("csv", "tsv", "csv", "tab"), new TextFileFilter("csv", "tsv", "csv", "tab"), event, "Open CSV file");
+        if (files.size() > 0) {
 
             File file = files.get(0);
             ImportCSVWindow importCSVWindow = new ImportCSVWindow(getViewer(), getDir());
@@ -237,7 +237,7 @@ public class ImportCSVCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     public String getDescription() {

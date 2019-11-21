@@ -68,7 +68,7 @@ public class ClearCommand extends CommandBase implements ICommand {
         executeImmediately(getSyntax());
     }
 
-    public static final String NAME = "Clear";
+    private static final String NAME = "Clear";
 
     public String getName() {
         return NAME;

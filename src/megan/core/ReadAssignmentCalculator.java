@@ -19,7 +19,7 @@
 
 package megan.core;
 
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import jloda.util.interval.IntervalTree;
 import megan.data.IMatchBlock;
 import megan.data.IReadBlock;
@@ -68,7 +68,7 @@ public class ReadAssignmentCalculator {
      * @param intervals
      * @return covered bases
      */
-    public static int computeCoveredBases(IReadBlock readBlock, IntervalTree<Object> intervals) {
+    private static int computeCoveredBases(IReadBlock readBlock, IntervalTree<Object> intervals) {
         if (intervals == null)
             intervals = new IntervalTree<>();
         else

@@ -46,17 +46,18 @@ public class ShowClusterWindowCommand extends CommandBase implements ICommand {
             if (viewer == null) {
                 viewer = new TaxonomyClusterViewer((MainViewer) getViewer());
                 if (ClusterViewer.clusterViewerAddOn != null)
-                    ClusterViewer.clusterViewerAddOn.apply(viewer);
+                    ClusterViewer.clusterViewerAddOn.accept(viewer);
                 dir.addViewer(viewer);
             }
-            viewer.toFront();
+            viewer.getFrame().toFront();
+
         } else if (getViewer() instanceof ClassificationViewer) {
             final String name = getViewer().getClassName().toUpperCase() + "ClusterViewer";
             ClusterViewer viewer = (ClusterViewer) dir.getViewerByClassName(name);
             if (viewer == null) {
                 viewer = new ClusterViewer(dir, (ClassificationViewer) getViewer(), getViewer().getClassName());
                 if (ClusterViewer.clusterViewerAddOn != null)
-                    ClusterViewer.clusterViewerAddOn.apply(viewer);
+                    ClusterViewer.clusterViewerAddOn.accept(viewer);
                 dir.addViewer(viewer);
             }
             viewer.toFront();
@@ -70,7 +71,7 @@ public class ShowClusterWindowCommand extends CommandBase implements ICommand {
     }
 
     public boolean isApplicable() {
-        return ((Director) getDir()).getDocument().getNumberOfSamples() >= 4 && getViewer() instanceof ClassificationViewer;
+        return getDir().getDocument().getNumberOfSamples() >= 4 && getViewer() instanceof ClassificationViewer;
 
     }
 

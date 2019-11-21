@@ -20,11 +20,11 @@ package megan.inspector.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
-import megan.fx.NotificationsInSwing;
 import megan.inspector.InspectorWindow;
 import megan.main.MeganProperties;
 import megan.viewer.TaxonomyData;
@@ -93,7 +93,7 @@ public class ShowTaxonCommand extends CommandBase implements ICommand {
         }
     }
 
-    public static final String NAME = "Show Taxon...";
+    private static final String NAME = "Show Taxon...";
 
     public String getName() {
         return NAME;
@@ -124,7 +124,7 @@ public class ShowTaxonCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

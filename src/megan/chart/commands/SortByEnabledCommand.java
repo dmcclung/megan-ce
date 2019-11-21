@@ -40,8 +40,7 @@ public class SortByEnabledCommand extends CommandBase implements ICommand {
         np.matchIgnoreCase(getSyntax());
         ChartViewer chartViewer = (ChartViewer) getViewer();
         final LabelsJList list = chartViewer.getActiveLabelsJList();
-        LinkedList<String> disabled = new LinkedList<>();
-        disabled.addAll(list.getDisabledLabels());
+        LinkedList<String> disabled = new LinkedList<>(list.getDisabledLabels());
         LinkedList<String> labels = new LinkedList<>();
         labels.addAll(list.getEnabledLabels());
         labels.addAll(list.getDisabledLabels());
@@ -64,7 +63,7 @@ public class SortByEnabledCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     public String getDescription() {

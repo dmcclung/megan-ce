@@ -18,10 +18,10 @@
  */
 package megan.chart;
 
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import megan.chart.data.DefaultChartData;
 import megan.chart.data.IChartData;
 import megan.chart.drawers.BarChartDrawer;
@@ -146,11 +146,7 @@ public class MetadataChart extends ChartViewer {
                             for (String sample : attributeTable.getSampleOrder()) {
                                 final Object value = attributeTable.get(sample, attribute);
                                 final String key = attribute + ":" + value;
-                                Integer count = attributeValue2count.get(key);
-                                if (count == null) {
-                                    attributeValue2count.put(key, 1);
-                                } else
-                                    attributeValue2count.put(key, count + 1);
+                                attributeValue2count.merge(key, 1, Integer::sum);
                                 total++;
 
                             }
@@ -195,7 +191,7 @@ public class MetadataChart extends ChartViewer {
             count2attribute.add(new Pair<>(-attributeValue2count.get(key), key));
         }
 
-        count2attribute.sort(new Pair<Integer, String>());
+        count2attribute.sort(new Pair<>());
 
         final Set<String> result = new HashSet<>();
         for (int i = 0; i < Math.min(10, count2attribute.size()); i++)
@@ -224,7 +220,7 @@ public class MetadataChart extends ChartViewer {
         return cName;
     }
 
-    public static String getClassName(String cName) {
+    private static String getClassName(String cName) {
         return cName + "Chart";
     }
 }

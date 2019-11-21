@@ -19,7 +19,7 @@
 package megan.io;
 
 import jloda.util.Basic;
-import jloda.util.FileInputIterator;
+import jloda.util.FileLineIterator;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * map based int putter
@@ -49,7 +50,7 @@ public class IntMapPutter implements IIntGetter, IIntPutter {
         map = new HashMap<>();
 
         if (loadFileIfExists && file.exists()) {
-            final FileInputIterator it = new FileInputIterator(file.getPath());
+            final FileLineIterator it = new FileLineIterator(file.getPath());
             while (it.hasNext()) {
                 String aLine = it.next().trim();
                 if (!aLine.startsWith("#")) {
@@ -75,10 +76,7 @@ public class IntMapPutter implements IIntGetter, IIntPutter {
     @Override
     public int get(long index) {
         Integer value = map.get(index);
-        if (value != null)
-            return value;
-        else
-            return 0;
+        return Objects.requireNonNullElse(value, 0);
 
     }
 

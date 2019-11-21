@@ -20,15 +20,15 @@
 package megan.blastclient;
 
 import jloda.swing.director.IDirectableViewer;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
 import jloda.swing.util.FastaFileFilter;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import jloda.util.Single;
 import megan.core.Director;
 import megan.core.MeganFile;
-import megan.fx.NotificationsInSwing;
 import megan.util.IReadsProvider;
 
 import javax.swing.*;
@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * displays a dialog to setup remote blast run on NCBI
@@ -185,18 +186,15 @@ public class RemoteBlastDialog {
             aLine.add(Box.createHorizontalGlue());
             rightPanel.add(aLine);
 
-            blastModeCBox.addItemListener(new ItemListener() {
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    blastDataBaseCBox.removeAllItems();
-                    for (String item : RemoteBlastClient.getDatabaseNames(RemoteBlastClient.BlastProgram.valueOfIgnoreCase(blastModeCBox.getSelectedItem().toString()))) {
-                        blastDataBaseCBox.addItem(item);
-                    }
+            blastModeCBox.addItemListener(e -> {
+                blastDataBaseCBox.removeAllItems();
+                for (String item : RemoteBlastClient.getDatabaseNames(RemoteBlastClient.BlastProgram.valueOfIgnoreCase(blastModeCBox.getSelectedItem().toString()))) {
+                    blastDataBaseCBox.addItem(item);
                 }
             });
             final String previousDB = ProgramProperties.get("RemoteBlastDB", "nr");
 
-            for (String item : RemoteBlastClient.getDatabaseNames((RemoteBlastClient.BlastProgram) blastModeCBox.getSelectedItem())) {
+            for (String item : RemoteBlastClient.getDatabaseNames((RemoteBlastClient.BlastProgram) Objects.requireNonNull(blastModeCBox.getSelectedItem()))) {
                 blastDataBaseCBox.addItem(item);
                 if (item.equalsIgnoreCase(previousDB))
                     blastDataBaseCBox.setSelectedItem(item);
@@ -260,12 +258,7 @@ public class RemoteBlastDialog {
             }
         });
 
-        fileNameField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                applyButton.setEnabled(fileNameField.getText().trim().length() > 0);
-            }
-        });
+        fileNameField.addActionListener(e -> applyButton.setEnabled(fileNameField.getText().trim().length() > 0));
 
         bottomPanel.add(applyButton);
         dialog.getContentPane().add(bottomPanel, BorderLayout.SOUTH);

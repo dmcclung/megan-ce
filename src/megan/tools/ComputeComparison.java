@@ -19,11 +19,8 @@
 package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.PeakMemoryUsageMonitor;
-import jloda.util.ProgressSilent;
-import jloda.util.UsageException;
+import jloda.swing.util.ResourceManager;
+import jloda.util.*;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.SaveCommand;
 import megan.commands.show.CompareCommand;
@@ -31,6 +28,7 @@ import megan.core.Director;
 import megan.core.Document;
 import megan.core.MeganFile;
 import megan.dialogs.compare.Comparer;
+import megan.main.Megan6;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -49,6 +47,7 @@ public class ComputeComparison {
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("ComputeComparison");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -71,7 +70,7 @@ public class ComputeComparison {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public void run(String[] args) throws Exception {
+    private void run(String[] args) throws Exception {
         final ArgsOptions options = new ArgsOptions(args, this, "Computes the comparison of multiple megan, RMA or meganized DAA files");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
@@ -91,6 +90,11 @@ public class ComputeComparison {
         final boolean keepOne = options.getOption("-k1", "keepOne", "In a normalized comparison, minimum non-zero count is set to 1", false);
 
         options.done();
+
+        for(String fileName:inputFiles) {
+            if(!Basic.fileExistsAndIsNonEmpty(fileName))
+                throw new IOException("No such file or file empty: "+fileName);
+        }
 
         final Director dir = Director.newProject(false);
         final Document doc = dir.getDocument();

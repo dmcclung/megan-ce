@@ -68,7 +68,7 @@ public class ShowNucleotidesCommand extends CommandBase implements ICheckBoxComm
         execute("set showAminoAcids=false;");
     }
 
-    public static final String NAME = "Show Nucleotides";
+    private static final String NAME = "Show Nucleotides";
 
     public String getName() {
         return NAME;

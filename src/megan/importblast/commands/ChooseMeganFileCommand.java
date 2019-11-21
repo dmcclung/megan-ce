@@ -20,9 +20,9 @@ package megan.importblast.commands;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.importblast.ImportBlastDialog;
 import megan.main.MeganProperties;
@@ -104,7 +104,7 @@ public class ChooseMeganFileCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/SaveAs16.gif");
+        return ResourceManager.getIcon("sun/SaveAs16.gif");
     }
 
     /**

@@ -71,7 +71,7 @@ public class ShowImportBlastCommand extends CommandBase implements ICommand {
         executeImmediately(getSyntax());
     }
 
-    public static final String NAME = "Import From BLAST...";
+    private static final String NAME = "Import From BLAST...";
 
     /**
      * get the name to be used as a menu label
@@ -97,7 +97,7 @@ public class ShowImportBlastCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     /**
@@ -106,7 +106,7 @@ public class ShowImportBlastCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | InputEvent.SHIFT_MASK);
+        return KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | InputEvent.SHIFT_DOWN_MASK);
     }
 
     /**

@@ -87,7 +87,7 @@ public class ComputeWordCountAnalysisCommand extends CommandBase implements ICom
         execute("compute wordCount kmer=25 step=25 mindepth=10;");
     }
 
-    public static final String NAME = "Compute Diversity...";
+    private static final String NAME = "Compute Diversity...";
 
     public String getName() {
         return NAME;

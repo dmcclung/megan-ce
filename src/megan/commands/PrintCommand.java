@@ -19,12 +19,12 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.dialogs.lrinspector.LRInspectorViewer;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -82,7 +82,7 @@ public class PrintCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | InputEvent.SHIFT_MASK);
+        return KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | InputEvent.SHIFT_DOWN_MASK);
     }
 
     public String getDescription() {
@@ -94,7 +94,7 @@ public class PrintCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Print16.gif");
+        return ResourceManager.getIcon("sun/Print16.gif");
     }
 }
 

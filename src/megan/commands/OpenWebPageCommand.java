@@ -19,14 +19,14 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.BasicSwing;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.chart.FViewerChart;
 import megan.chart.TaxaChart;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.MainViewer;
 import megan.viewer.ViewerBase;
@@ -75,7 +75,7 @@ public class OpenWebPageCommand extends CommandBase implements ICommand {
         if (getViewer() instanceof MainViewer || getViewer() instanceof TaxaChart)
             name = "Taxonomy";
         else if (getViewer() instanceof ClassificationViewer) {
-            name = ((ClassificationViewer) getViewer()).getClassName();
+            name = getViewer().getClassName();
         } else if (getViewer() instanceof FViewerChart) {
             name = ((FViewerChart) getViewer()).getCName();
         }
@@ -111,7 +111,7 @@ public class OpenWebPageCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/development/WebComponent16.gif");
+        return ResourceManager.getIcon("sun/WebComponent16.gif");
     }
 
     public KeyStroke getAcceleratorKey() {

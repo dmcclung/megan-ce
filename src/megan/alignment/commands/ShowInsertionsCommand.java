@@ -75,7 +75,7 @@ public class ShowInsertionsCommand extends CommandBase implements ICheckBoxComma
         execute("set show-insertions=" + !isSelected() + ";apply;");
     }
 
-    public static final String NAME = "Show Insertions";
+    private static final String NAME = "Show Insertions";
 
     public String getName() {
         return NAME;

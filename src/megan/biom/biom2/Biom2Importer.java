@@ -20,15 +20,15 @@ package megan.biom.biom2;
 
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
+import jloda.util.BlastMode;
+import jloda.util.ProgramProperties;
 import megan.classification.Classification;
 import megan.classification.IdMapper;
 import megan.core.DataTable;
 import megan.core.Document;
 import megan.core.MeganFile;
-import megan.fx.NotificationsInSwing;
-import megan.parsers.blast.BlastMode;
 import megan.util.BiomFileFilter;
 import megan.viewer.MainViewer;
 
@@ -89,27 +89,23 @@ public class Biom2Importer {
             }
 
             final float totalReads;
-            if (sizes != null) {
-                totalReads = Basic.getSum(sizes);
+            totalReads = Basic.getSum(sizes);
 
-                doc.getActiveViewers().addAll(classification2class2sample2count.keySet());
+            doc.getActiveViewers().addAll(classification2class2sample2count.keySet());
 
-                doc.getMeganFile().setFileType(MeganFile.Type.MEGAN_SUMMARY_FILE);
+            doc.getMeganFile().setFileType(MeganFile.Type.MEGAN_SUMMARY_FILE);
 
-                datatTable.getClassification2Class2Counts().putAll(classification2class2sample2count);
+            datatTable.getClassification2Class2Counts().putAll(classification2class2sample2count);
 
-                if (!classification2class2sample2count.containsKey(Classification.Taxonomy)) {
-                    final Map<Integer, float[]> class2counts = new HashMap<>();
-                    class2counts.put(IdMapper.UNASSIGNED_ID, sizes);
-                    datatTable.getClassification2Class2Counts().put(Classification.Taxonomy, class2counts);
-                }
-
-                datatTable.setSamples(sampleIds, null, sizes, new BlastMode[]{BlastMode.Classifier});
-                datatTable.setTotalReads(Math.round(totalReads));
-                doc.setNumberReads(Math.round(totalReads));
-            } else {
-                totalReads = 0;
+            if (!classification2class2sample2count.containsKey(Classification.Taxonomy)) {
+                final Map<Integer, float[]> class2counts = new HashMap<>();
+                class2counts.put(IdMapper.UNASSIGNED_ID, sizes);
+                datatTable.getClassification2Class2Counts().put(Classification.Taxonomy, class2counts);
             }
+
+            datatTable.setSamples(sampleIds, null, sizes, new BlastMode[]{BlastMode.Classifier});
+            datatTable.setTotalReads(Math.round(totalReads));
+            doc.setNumberReads(Math.round(totalReads));
 
             // read the meta data, if available:
             final int metaDataCount = Biom2MetaData.read(reader, sampleIds, doc.getSampleAttributeTable());
@@ -150,11 +146,7 @@ public class Biom2Importer {
      * @return entry
      */
     private static Integer[] getOrCreate(Map<Integer, Integer[]> map, Integer id, int size) {
-        Integer[] result = map.get(id);
-        if (result == null) {
-            result = newZeroedIntegerArray(size);
-            map.put(id, result);
-        }
+        Integer[] result = map.computeIfAbsent(id, k -> newZeroedIntegerArray(size));
         return result;
     }
 

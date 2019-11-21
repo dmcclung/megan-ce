@@ -21,13 +21,10 @@ package megan.commands.export;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.swing.util.TextFileFilter;
-import jloda.util.Basic;
-import jloda.util.Pair;
-import jloda.util.Single;
-import jloda.util.Triplet;
+import jloda.swing.window.NotificationsInSwing;
+import jloda.util.*;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
@@ -35,9 +32,7 @@ import megan.core.Director;
 import megan.core.Document;
 import megan.dialogs.export.ExportAlignedReads2GFF3Format;
 import megan.dialogs.lrinspector.LRInspectorViewer;
-import megan.fx.NotificationsInSwing;
 import megan.main.Version;
-import megan.parsers.blast.BlastMode;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.MainViewer;
 
@@ -145,12 +140,12 @@ public class ExportReadsToGFFCommand extends CommandBase implements ICommand {
      * @param frame
      * @return options
      */
-    public Triplet<Boolean, Boolean, String> getOptions(JFrame frame, boolean canExport, boolean canExcludeIncompatible) {
+    private Triplet<Boolean, Boolean, String> getOptions(JFrame frame, boolean canExport, boolean canExcludeIncompatible) {
         final JDialog dialog = new JDialog();
         {
             dialog.setModal(true);
             dialog.setTitle("Export in GFF3 Format - " + Version.NAME);
-            dialog.setIconImage(ProgramProperties.getProgramIcon().getImage());
+            dialog.setIconImages(ProgramProperties.getProgramIconImages());
             dialog.setLocationRelativeTo(frame);
             dialog.setSize(500, 160);
             dialog.getContentPane().setLayout(new BorderLayout());
@@ -243,17 +238,15 @@ public class ExportReadsToGFFCommand extends CommandBase implements ICommand {
         if (((Director) getDir()).getDocument().getBlastMode() == BlastMode.BlastX) {
             if (getViewer() instanceof ClassificationViewer) {
                 final ClassificationViewer viewer = (ClassificationViewer) getViewer();
-                if (viewer.getDocument().isLongReads() && viewer.getNumberSelectedNodes() > 0)
-                    return true;
+                return viewer.getDocument().isLongReads() && viewer.getNumberSelectedNodes() > 0;
             } else if (getViewer() instanceof LRInspectorViewer) {
-                if (((LRInspectorViewer) getViewer()).getNumberOfSelectedItems() > 0)
-                    return true;
+                return ((LRInspectorViewer) getViewer()).getNumberOfSelectedItems() > 0;
             }
         }
         return false;
     }
 
-    public static final String NAME = "Annotations in GFF Format...";
+    private static final String NAME = "Annotations in GFF Format...";
 
     public String getName() {
         return NAME;
@@ -264,7 +257,7 @@ public class ExportReadsToGFFCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public boolean isCritical() {

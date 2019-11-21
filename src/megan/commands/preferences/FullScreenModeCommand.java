@@ -28,7 +28,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class FullScreenModeCommand extends CommandBase implements ICheckBoxCommand {
-    static final GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
+    private static final GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
 
     @Override
     public boolean isSelected() {

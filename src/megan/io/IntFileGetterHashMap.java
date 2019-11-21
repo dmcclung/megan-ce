@@ -18,12 +18,13 @@
  */
 package megan.io;
 
-import jloda.util.FileInputIterator;
+import jloda.util.FileLineIterator;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * map-based int getter
@@ -36,7 +37,7 @@ public class IntFileGetterHashMap implements IIntGetter {
     public IntFileGetterHashMap(File file) throws IOException {
         map = new HashMap<>();
 
-        final FileInputIterator it = new FileInputIterator(file.getPath());
+        final FileLineIterator it = new FileLineIterator(file.getPath());
         while (it.hasNext()) {
             String aLine = it.next().trim();
             if (!aLine.startsWith("#")) {
@@ -61,10 +62,7 @@ public class IntFileGetterHashMap implements IIntGetter {
     @Override
     public int get(long index) {
         Integer value = map.get(index);
-        if (value != null)
-            return value;
-        else
-            return 0;
+        return Objects.requireNonNullElse(value, 0);
 
     }
 

@@ -18,7 +18,7 @@
  */
 package megan.parsers;
 
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.*;
 import megan.algorithms.MinSupportFilter;
 import megan.classification.Classification;
@@ -28,8 +28,6 @@ import megan.classification.IdParser;
 import megan.core.ClassificationType;
 import megan.core.DataTable;
 import megan.core.Document;
-import megan.fx.NotificationsInSwing;
-import megan.parsers.blast.BlastMode;
 import megan.viewer.MainViewer;
 import megan.viewer.TaxonomyData;
 
@@ -84,9 +82,7 @@ public class CSVReadsHitsParser {
         }
 
         final Map<String, List<Pair<Integer, Float>>>[] readName2IdAndScore = new HashMap[cNames.length];
-        for (int i = 0; i < readName2IdAndScore.length; i++) {
-            readName2IdAndScore[i] = new HashMap<>();
-        }
+        Arrays.fill(readName2IdAndScore, new HashMap<>());
 
         final int[] count = new int[parsers.length];
         int numberOfErrors = 0;
@@ -95,31 +91,35 @@ public class CSVReadsHitsParser {
         final ProgressListener progress = doc.getProgressListener();
         progress.setTasks("Importing CSV file", "Reading " + fileName);
 
-        try (FileInputIterator it = new FileInputIterator(fileName)) {
+        int countInputReadNames = 0;
+        int countOutputReadNames = 0;
+        int countClassNames = 0;
+        int countUnrecognizedClassNames = 0;
+
+        try (FileLineIterator it = new FileLineIterator(fileName)) {
             progress.setMaximum(it.getMaximumProgress());
             progress.setProgress(0);
 
             boolean warnedNoScoreGiven = false;
 
-
             String prevName = "";
 
             while (it.hasNext()) {
-                String aLine = it.next();
                 numberOfLines++;
-                aLine = aLine.trim();
+                final String aLine = it.next().trim();
                 if (aLine.length() == 0 || aLine.startsWith("#"))
                     continue;
                 try {
-                    String[] tokens = Basic.split(aLine, separator);
+                    final String[] tokens = Basic.split(aLine, separator);
 
                     if (tokens.length < 2 || tokens.length > 3)
                         throw new IOException("Line " + numberOfLines + ": incorrect number of columns, expected 2 or 3, got: " + tokens.length);
 
-                    String readName = tokens[0].trim();
+                    final String readName = tokens[0].trim();
                     boolean found = false;
                     for (int i = 0; !found && i < parsers.length; i++) {
                         final int id = (parsers.length == 1 && Basic.isInteger(tokens[1]) ? Basic.parseInt(tokens[1]) : parsers[i].getIdFromHeaderLine(tokens[1]));
+
                         if (id != 0) {
                             float score;
                             if (tokens.length < 3) {
@@ -130,19 +130,26 @@ public class CSVReadsHitsParser {
                                 }
                             } else
                                 score = Float.parseFloat(tokens[2].trim());
-                            List<Pair<Integer, Float>> taxonIdAndScore = readName2IdAndScore[i].get(readName);
-                            if (taxonIdAndScore == null) {
-                                taxonIdAndScore = new LinkedList<>();
-                                readName2IdAndScore[i].put(readName, taxonIdAndScore);
-                            }
+                            final List<Pair<Integer, Float>> taxonIdAndScore = readName2IdAndScore[i].computeIfAbsent(readName, k -> new LinkedList<>());
                             taxonIdAndScore.add(new Pair<>(id, score));
                             if (!readName.equals(prevName))
                                 count[i]++;
                             found = true;
                         }
                     }
-                    if (!found)
+
+                    countClassNames++;
+                    if (!found) {
                         System.err.println("Unrecognized name: " + tokens[1]);
+                        countUnrecognizedClassNames++;
+                    }
+
+                    if (!readName.equals(prevName)) {
+                        countInputReadNames++;
+                        if (found)
+                            countOutputReadNames++;
+                    }
+
                     prevName = readName;
                 } catch (Exception ex) {
                     System.err.println("Error: " + ex + ", skipping");
@@ -171,11 +178,7 @@ public class CSVReadsHitsParser {
                 final int taxId = computeTaxonId(doc, taxonIdAndScore);
 
                 if (taxId != 0) {
-                    float[] counts = class2counts.get(taxId);
-                    if (counts == null) {
-                        counts = new float[]{0};
-                        class2counts.put(taxId, counts);
-                    }
+                    float[] counts = class2counts.computeIfAbsent(taxId, k -> new float[]{0});
                     counts[0]++;
                     if (class2count.get(taxId) == null)
                         class2count.put(taxId, 1f);
@@ -216,10 +219,23 @@ public class CSVReadsHitsParser {
                             }
                             class2counts.remove(oldTaxId);
                         }
-                    } catch (CanceledException e) {
+                    } catch (CanceledException ignored) {
                     }
                 }
             }
+
+            System.err.println(String.format("Reads in:%,13d", countInputReadNames));
+            System.err.println(String.format("Reads out:%,12d", countOutputReadNames));
+
+            System.err.println(String.format("Class names:%,10d", countClassNames));
+            if (countUnrecognizedClassNames > 0)
+                System.err.println(String.format("Unrecognized:%,9d", countUnrecognizedClassNames));
+
+            if (countOutputReadNames < countInputReadNames) {
+                float[] unassignedCounts = class2counts.computeIfAbsent(IdMapper.UNASSIGNED_ID, k -> new float[]{0});
+                unassignedCounts[0] += (countInputReadNames - countOutputReadNames);
+            }
+
             table.getClassification2Class2Counts().put(ClassificationType.Taxonomy.toString(), class2counts);
         } else {
             Map<Integer, float[]> class2counts = new HashMap<>();
@@ -241,11 +257,7 @@ public class CSVReadsHitsParser {
                     final int classId = getBestId(classIdAndScore);
 
                     if (classId != 0) {
-                        float[] counts = class2counts.get(classId);
-                        if (counts == null) {
-                            counts = new float[]{0};
-                            class2counts.put(classId, counts);
-                        }
+                        float[] counts = class2counts.computeIfAbsent(classId, k -> new float[]{0});
                         counts[0]++;
                         if (class2count.get(classId) == null)
                             class2count.put(classId, 1f);
@@ -296,16 +308,7 @@ public class CSVReadsHitsParser {
         final Pair<Integer, Float>[] pairs = taxonIdAndScore.toArray((Pair<Integer, Float>[]) new Pair[taxonIdAndScore.size()]);
 
         // sort by decreasing bit-score:
-        Arrays.sort(pairs, new Comparator<Pair<Integer, Float>>() {
-            public int compare(Pair<Integer, Float> pair1, Pair<Integer, Float> pair2) {
-                if (pair1.getSecond() > pair2.getSecond())
-                    return -1;
-                else if (pair1.getSecond() < pair2.getSecond())
-                    return 1;
-                else
-                    return 0;
-            }
-        });
+        Arrays.sort(pairs, (pair1, pair2) -> pair2.getSecond().compareTo(pair1.getSecond()));
 
         Set<Integer> taxonIds = new HashSet<>();
 

@@ -20,11 +20,11 @@ package megan.alignment.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.SequenceUtils;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentViewer;
 import megan.alignment.gui.Alignment;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -89,7 +89,7 @@ public class TranslateSelectedSequenceCommand extends CommandBase implements ICo
         execute(getSyntax());
     }
 
-    public static final String NAME = "Translate...";
+    private static final String NAME = "Translate...";
 
     public String getName() {
         return NAME;

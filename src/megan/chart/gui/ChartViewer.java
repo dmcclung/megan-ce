@@ -22,11 +22,13 @@ import jloda.swing.commands.CommandManager;
 import jloda.swing.director.*;
 import jloda.swing.find.FindToolBar;
 import jloda.swing.find.SearchManager;
-import jloda.swing.util.MenuBar;
 import jloda.swing.util.PopupMenu;
 import jloda.swing.util.*;
+import jloda.swing.window.MenuBar;
+import jloda.swing.window.*;
 import jloda.util.CanceledException;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import megan.chart.ChartColorManager;
 import megan.chart.IChartDrawer;
 import megan.chart.IMultiChartDrawable;
@@ -35,7 +37,6 @@ import megan.chart.data.IData;
 import megan.chart.data.IPlot2DData;
 import megan.chart.drawers.*;
 import megan.core.Director;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 
 import javax.swing.*;
@@ -57,7 +58,7 @@ import java.util.concurrent.TimeUnit;
  * Daniel Huson, 5.2012
  */
 public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWithFindToolBar, IViewerWithLegend, IUsesHeatMapColors, Printable {
-    protected final IDirectableViewer parentViewer;
+    private final IDirectableViewer parentViewer;
     protected final Director dir;
     private final IData chartData;
     private final CommandManager commandManager;
@@ -66,8 +67,8 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
     private boolean locked = false;
     private boolean showFindToolBar = false;
     private final SearchManager searchManager;
-    public final ToolBar toolbar;
-    public final ToolBar toolBar4List;
+    private final ToolBar toolbar;
+    private final ToolBar toolBar4List;
     private JToolBar bottomToolBar;
     private final MenuBar jMenuBar;
 
@@ -87,16 +88,17 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
 
     public static Font defaultFont;
 
-    int downX, downY;
+    private int downX;
+    private int downY;
 
     private boolean firstUpdate = true;
 
     private final Label2LabelMapper class2HigherClassMapper;
-    protected String windowTitle = "Chart";
+    private String windowTitle = "Chart";
     private String chartTitle = "Chart";
     private double classLabelAngle = 0;
     private boolean transpose = false;
-    protected ChartViewer.ScalingType scalingType = ChartViewer.ScalingType.LINEAR;
+    private ChartViewer.ScalingType scalingType = ChartViewer.ScalingType.LINEAR;
     private boolean showXAxis = true;
     private boolean showYAxis = true;
 
@@ -137,6 +139,8 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
         this.seriesLabelGetter = seriesLabelGetter;
         this.chartData = chartData;
 
+        this.setIconImages(ProgramProperties.getProgramIconImages());
+
         int[] geometry = ProgramProperties.get(MeganProperties.CHART_WINDOW_GEOMETRY, new int[]{100, 100, 800, 600});
         getFrame().setSize(geometry[2], geometry[3]);
         if (parentViewer != null)
@@ -159,8 +163,8 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
                             ProgramProperties.get(target.toString() + "Color", (Color) null)));
         }
 
-        if (ProgramProperties.getProgramIcon() != null)
-            setIconImage(ProgramProperties.getProgramIcon().getImage());
+        setIconImages(ProgramProperties.getProgramIconImages());
+
         MenuConfiguration menuConfig = GUIConfiguration.getMenuConfiguration();
 
         if (parentViewer == null)
@@ -212,23 +216,21 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
 
         searchManager = new SearchManager(dir, this, seriesList.getSearcher(), false, true);
 
-        listsTabbedPane.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent changeEvent) {
-                if (listsTabbedPane.getSelectedIndex() == classesList.getTabIndex()) {
-                    classesList.activate();
-                    seriesList.deactivate();
-                    attributesList.deactivate();
-                } else if (listsTabbedPane.getSelectedIndex() == seriesList.getTabIndex()) {
-                    seriesList.activate();
-                    classesList.deactivate();
-                    attributesList.deactivate();
-                } else if (listsTabbedPane.getSelectedIndex() == attributesList.getTabIndex()) {
-                    attributesList.activate();
-                    seriesList.deactivate();
-                    classesList.deactivate();
-                }
-                updateView(Director.ENABLE_STATE);
+        listsTabbedPane.addChangeListener(changeEvent -> {
+            if (listsTabbedPane.getSelectedIndex() == classesList.getTabIndex()) {
+                classesList.activate();
+                seriesList.deactivate();
+                attributesList.deactivate();
+            } else if (listsTabbedPane.getSelectedIndex() == seriesList.getTabIndex()) {
+                seriesList.activate();
+                classesList.deactivate();
+                attributesList.deactivate();
+            } else if (listsTabbedPane.getSelectedIndex() == attributesList.getTabIndex()) {
+                attributesList.activate();
+                seriesList.deactivate();
+                classesList.deactivate();
             }
+            updateView(Director.ENABLE_STATE);
         });
 
         listPanel.add(listsTabbedPane, BorderLayout.CENTER);
@@ -245,45 +247,43 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
 
         contentPanel.setLayout(new BorderLayout());
 
-        contentPanel.addMouseWheelListener(new MouseWheelListener() {
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-                    boolean xyLocked = getChartDrawer().isXYLocked();
+        contentPanel.addMouseWheelListener(e -> {
+            if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+                boolean xyLocked = getChartDrawer().isXYLocked();
 
-                    boolean doScaleVertical = !e.isMetaDown() && !e.isAltDown() && !e.isShiftDown() && !xyLocked;
-                    boolean doScaleHorizontal = !e.isMetaDown() && !e.isControlDown() && !e.isAltDown() && e.isShiftDown();
-                    boolean doScrollVertical = !e.isMetaDown() && e.isAltDown() && !e.isShiftDown() && !xyLocked;
-                    boolean doScrollHorizontal = !e.isMetaDown() && e.isAltDown() && e.isShiftDown() && !xyLocked;
-                    boolean doScaleBoth = (e.isMetaDown() || xyLocked) && !e.isAltDown() && !e.isShiftDown();
-                    boolean doRotate = !e.isShiftDown() && !e.isMetaDown() && !e.isControlDown() && e.isAltDown() && getChartDrawer() instanceof RadialSpaceFillingTreeDrawer;
+                boolean doScaleVertical = !e.isMetaDown() && !e.isAltDown() && !e.isShiftDown() && !xyLocked;
+                boolean doScaleHorizontal = !e.isMetaDown() && !e.isControlDown() && !e.isAltDown() && e.isShiftDown();
+                boolean doScrollVertical = !e.isMetaDown() && e.isAltDown() && !e.isShiftDown() && !xyLocked;
+                boolean doScrollHorizontal = !e.isMetaDown() && e.isAltDown() && e.isShiftDown() && !xyLocked;
+                boolean doScaleBoth = (e.isMetaDown() || xyLocked) && !e.isAltDown() && !e.isShiftDown();
+                boolean doRotate = !e.isShiftDown() && !e.isMetaDown() && !e.isControlDown() && e.isAltDown() && getChartDrawer() instanceof RadialSpaceFillingTreeDrawer;
 
-                    if (doScrollVertical) {
-                        getScrollPane().getVerticalScrollBar().setValue(getScrollPane().getVerticalScrollBar().getValue() + e.getUnitsToScroll());
-                    } else if (doScaleVertical) {
-                        double toScroll = 1.0 + (e.getUnitsToScroll() / 100.0);
-                        double scale = (toScroll > 0 ? 1.0 / toScroll : toScroll);
-                        if (scale >= 0 && scale <= 1000) {
-                            zoom(1, (float) scale, e.getPoint());
-                        }
-                    } else if (doScaleBoth) {
-                        double toScroll = 1.0 + (e.getUnitsToScroll() / 100.0);
-                        double scale = (toScroll > 0 ? 1.0 / toScroll : toScroll);
-                        if (scale >= 0 && scale <= 1000) {
-                            zoom((float) scale, (float) scale, e.getPoint());
-                        }
-                    } else if (doScrollHorizontal) {
-                        getScrollPane().getHorizontalScrollBar().setValue(getScrollPane().getHorizontalScrollBar().getValue() + e.getUnitsToScroll());
-                    } else if (doScaleHorizontal && !xyLocked) { //scale
-                        double toScroll = 1.0 + (e.getUnitsToScroll() / 100.0);
-                        double scale = (toScroll > 0 ? 1.0 / toScroll : toScroll);
-                        if (scale >= 0 && scale <= 1000) {
-                            zoom((float) scale, 1, e.getPoint());
-                        }
-                    } else if (doRotate) {
-                        RadialSpaceFillingTreeDrawer drawer = (RadialSpaceFillingTreeDrawer) getChartDrawer();
-                        drawer.setAngleOffset(drawer.getAngleOffset() + e.getUnitsToScroll());
-                        drawer.repaint();
+                if (doScrollVertical) {
+                    getScrollPane().getVerticalScrollBar().setValue(getScrollPane().getVerticalScrollBar().getValue() + e.getUnitsToScroll());
+                } else if (doScaleVertical) {
+                    double toScroll = 1.0 + (e.getUnitsToScroll() / 100.0);
+                    double scale = (toScroll > 0 ? 1.0 / toScroll : toScroll);
+                    if (scale >= 0 && scale <= 1000) {
+                        zoom(1, (float) scale, e.getPoint());
                     }
+                } else if (doScaleBoth) {
+                    double toScroll = 1.0 + (e.getUnitsToScroll() / 100.0);
+                    double scale = (toScroll > 0 ? 1.0 / toScroll : toScroll);
+                    if (scale >= 0 && scale <= 1000) {
+                        zoom((float) scale, (float) scale, e.getPoint());
+                    }
+                } else if (doScrollHorizontal) {
+                    getScrollPane().getHorizontalScrollBar().setValue(getScrollPane().getHorizontalScrollBar().getValue() + e.getUnitsToScroll());
+                } else if (doScaleHorizontal && !xyLocked) { //scale
+                    double toScroll = 1.0 + (e.getUnitsToScroll() / 100.0);
+                    double scale = (toScroll > 0 ? 1.0 / toScroll : toScroll);
+                    if (scale >= 0 && scale <= 1000) {
+                        zoom((float) scale, 1, e.getPoint());
+                    }
+                } else if (doRotate) {
+                    RadialSpaceFillingTreeDrawer drawer = (RadialSpaceFillingTreeDrawer) getChartDrawer();
+                    drawer.setAngleOffset(drawer.getAngleOffset() + e.getUnitsToScroll());
+                    drawer.repaint();
                 }
             }
         });
@@ -344,19 +344,19 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
 
             public void mouseMoved(MouseEvent mouseEvent) {
                 final String[] seriesClassAttribute = getChartDrawer().getItemBelowMouse(mouseEvent, getChartSelection());
-                String label = "";
+                StringBuilder label = new StringBuilder();
                 if (seriesClassAttribute != null) {
                     for (String str : seriesClassAttribute) {
                         if (str != null) {
                             if (label.length() == 0)
-                                label = str;
+                                label = new StringBuilder(str);
                             else
-                                label += ", " + str;
+                                label.append(", ").append(str);
                         }
                     }
                 }
-                ChartViewer.this.getContentPanel().setToolTipText(label);
-                mainPanel.setToolTipText(label);
+                ChartViewer.this.getContentPanel().setToolTipText(label.toString());
+                mainPanel.setToolTipText(label.toString());
             }
         });
 
@@ -605,13 +605,11 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
             Set<String> visibleLabels = ((CoOccurrenceDrawer) chartDrawer).getAllVisibleLabels();
 
             if (transpose) {
-                final Set<String> toDisable = new HashSet<>();
-                toDisable.addAll(seriesList.getAllLabels());
+                final Set<String> toDisable = new HashSet<>(seriesList.getAllLabels());
                 toDisable.removeAll(visibleLabels);
                 seriesList.disableLabels(toDisable);
             } else {
-                final Set<String> toDisable = new HashSet<>();
-                toDisable.addAll(classesList.getAllLabels());
+                final Set<String> toDisable = new HashSet<>(classesList.getAllLabels());
                 toDisable.removeAll(visibleLabels);
                 classesList.disableLabels(toDisable);
             }
@@ -734,7 +732,7 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
     }
 
 
-    public void setWindowTitle(String title) {
+    protected void setWindowTitle(String title) {
         windowTitle = title;
         String newTitle = windowTitle + " - " + dir.getDocument().getTitle();
         if (dir.getDocument().isDirty())
@@ -788,7 +786,7 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
         return chartDrawer;
     }
 
-    public void setChartDrawer(IChartDrawer chartDrawer) {
+    private void setChartDrawer(IChartDrawer chartDrawer) {
         if (bottomToolBar != null) {
             mainPanel.remove(bottomToolBar);
             bottomToolBar = null;
@@ -865,7 +863,7 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
         return "ChartViewer";
     }
 
-    public StatusBar getStatusbar() {
+    protected StatusBar getStatusbar() {
         return statusbar;
     }
 
@@ -886,7 +884,7 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
 
             double scale_x = paper_w / image_w;
             double scale_y = paper_h / image_h;
-            double scale = (scale_x <= scale_y) ? scale_x : scale_y;
+            double scale = Math.min(scale_x, scale_y);
 
             double shift_x = paper_x + (paper_w - scale * image_w) / 2.0;
             double shift_y = paper_y + (paper_h - scale * image_h) / 2.0;
@@ -904,7 +902,7 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
             return Printable.NO_SUCH_PAGE;
     }
 
-    public ToolBar getToolbar() {
+    protected ToolBar getToolbar() {
         return toolbar;
     }
 
@@ -1203,7 +1201,7 @@ public class ChartViewer extends JFrame implements IDirectableViewer, IViewerWit
         return popupMenuModifier;
     }
 
-    public void setPopupMenuModifier(IPopupMenuModifier popupMenuModifier) {
+    private void setPopupMenuModifier(IPopupMenuModifier popupMenuModifier) {
         this.popupMenuModifier = popupMenuModifier;
     }
 

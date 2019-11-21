@@ -19,10 +19,11 @@
 package megan.commands.export;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentExporter;
 import megan.classification.Classification;
@@ -30,7 +31,6 @@ import megan.classification.ClassificationManager;
 import megan.commands.CommandBase;
 import megan.core.ClassificationType;
 import megan.core.Document;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.MainViewer;
 import megan.viewer.TaxonomyData;
@@ -150,8 +150,7 @@ public class ExportAlignmentsCommand extends CommandBase implements ICommand {
             } else {
                 ClassificationViewer viewer = (ClassificationViewer) getDir().getViewerByClassName(classificationName);
                 if (viewer != null) {
-                    if (viewer != null)
-                        classIds.addAll(viewer.getSelectedNodeIds());
+                    classIds.addAll(viewer.getSelectedNodeIds());
                 }
             }
         }
@@ -425,14 +424,10 @@ public class ExportAlignmentsCommand extends CommandBase implements ICommand {
      */
     private File chooseDirectory(ActionEvent event, String fileName) {
         File file = null;
-        if (ProgramProperties.isMacOS() && (event != null && (event.getModifiers() & Event.SHIFT_MASK) == 0)) {
+        if (ProgramProperties.isMacOS() && (event != null && (event.getModifiers() & ActionEvent.SHIFT_MASK) == 0)) {
             //Use native file dialog on mac
             java.awt.FileDialog dialog = new java.awt.FileDialog(getViewer().getFrame(), "Open output directory", java.awt.FileDialog.LOAD);
-            dialog.setFilenameFilter(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return true;
-                }
-            });
+            dialog.setFilenameFilter((dir, name) -> true);
             if (fileName != null) {
                 dialog.setDirectory(fileName);
                 //dialog.setFile(fileName);
@@ -468,7 +463,7 @@ public class ExportAlignmentsCommand extends CommandBase implements ICommand {
         return getViewer() instanceof ViewerBase && getDir().getDocument().getMeganFile().hasDataConnector() && ((ViewerBase) getViewer()).getSelectedNodes().size() > 0;
     }
 
-    static public String NAME = "Alignments...";
+    private static final String NAME = "Alignments...";
 
     public String getName() {
         return NAME;
@@ -487,7 +482,7 @@ public class ExportAlignmentsCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 }
 

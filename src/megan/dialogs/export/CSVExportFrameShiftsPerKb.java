@@ -20,13 +20,13 @@
 package megan.dialogs.export;
 
 import jloda.graph.Node;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.*;
 import jloda.util.interval.IntervalTree;
 import megan.algorithms.IntervalTree4Matches;
 import megan.classification.Classification;
 import megan.core.Document;
 import megan.data.*;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.MainViewer;
 import megan.viewer.TaxonomyData;
 
@@ -40,7 +40,7 @@ import java.util.*;
  * exports the average number of frame-shifts per kilo-base of aligned sequence
  * Daniel Huson, 13.2018
  */
-public class CSVExportFrameShiftsPerKb {
+class CSVExportFrameShiftsPerKb {
     /**
      * export mapping of read names to frame-shifts per kilo-base
      *
@@ -131,7 +131,7 @@ public class CSVExportFrameShiftsPerKb {
      * @param readBlock
      * @return frame shifts per KB
      */
-    public static float computeFrameShiftsPerKb(IReadBlock readBlock, boolean excludeDominated) {
+    private static float computeFrameShiftsPerKb(IReadBlock readBlock, boolean excludeDominated) {
         int countFrameShifts = 0;
         int countAlignedBases = 0;
 

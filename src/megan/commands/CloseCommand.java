@@ -24,9 +24,9 @@ import jloda.swing.director.IDirectableViewer;
 import jloda.swing.director.IDirector;
 import jloda.swing.director.ProjectManager;
 import jloda.swing.graphview.GraphView;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.viewer.MainViewer;
@@ -77,7 +77,7 @@ public class CloseCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**
@@ -127,8 +127,7 @@ public class CloseCommand extends CommandBase implements ICommand {
                 ((GraphView) getParent()).getFrame().setVisible(false);
             }
         } else if (what.equalsIgnoreCase("others")) {
-            final ArrayList<IDirector> projects = new ArrayList<>();
-            projects.addAll(ProjectManager.getProjects());
+            final ArrayList<IDirector> projects = new ArrayList<>(ProjectManager.getProjects());
 
             for (IDirector aDir : projects) {
                 if (aDir == getDir()) {

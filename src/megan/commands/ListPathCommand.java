@@ -22,12 +22,12 @@ import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.graph.NodeSet;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.TaxonomyData;
 import megan.viewer.ViewerBase;
 
@@ -146,7 +146,7 @@ public class ListPathCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/History16.gif");
+        return ResourceManager.getIcon("sun/History16.gif");
     }
 
     public boolean isCritical() {

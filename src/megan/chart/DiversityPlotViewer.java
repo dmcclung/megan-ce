@@ -18,11 +18,7 @@
  */
 package megan.chart;
 
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.CanceledException;
-import jloda.util.Pair;
-import jloda.util.Single;
+import jloda.util.*;
 import megan.alignment.AlignmentViewer;
 import megan.alignment.WordCountAnalysis;
 import megan.chart.data.DefaultPlot2DData;
@@ -46,9 +42,9 @@ import java.util.TreeMap;
  */
 public class DiversityPlotViewer extends ChartViewer {
     private final AlignmentViewer alignmentViewer;
-    private int kmer;
-    private int step;
-    private int mindepth;
+    private final int kmer;
+    private final int step;
+    private final int mindepth;
 
     private boolean inSync = false;
 
@@ -122,7 +118,7 @@ public class DiversityPlotViewer extends ChartViewer {
 
             LinkedList<Pair<Number, Number>> values = new LinkedList<>();
             SortedMap<Number, Number> rank2percentage = new TreeMap<>();
-            WordCountAnalysis.apply(alignmentViewer.getAlignment(), kmer, step, mindepth, ((Director) dir).getDocument().getProgressListener(), values, rank2percentage);
+            WordCountAnalysis.apply(alignmentViewer.getAlignment(), kmer, step, mindepth, dir.getDocument().getProgressListener(), values, rank2percentage);
             Single<Integer> extrapolatedCount = new Single<>();
             LinkedList<Pair<Number, Number>> mentenKinetics = WordCountAnalysis.computeMentenKinetics(values, extrapolatedCount);
 
@@ -132,8 +128,8 @@ public class DiversityPlotViewer extends ChartViewer {
             if (extrapolatedCount.get() != null && extrapolatedCount.get() > 0) {
                 LinkedList<Pair<Number, Number>> exCount = new LinkedList<>();
                 Pair<Number, Number> range = chartData.getRangeX();
-                exCount.add(new Pair<Number, Number>(range.getFirst(), extrapolatedCount.get()));
-                exCount.add(new Pair<Number, Number>(range.getSecond(), extrapolatedCount.get()));
+                exCount.add(new Pair<>(range.getFirst(), extrapolatedCount.get()));
+                exCount.add(new Pair<>(range.getSecond(), extrapolatedCount.get()));
                 chartData.setDataForSeries("Extrapolation", exCount);
                 ((Plot2DDrawer) getChartDrawer()).setShowLines("Extrapolation", true);
                 ((Plot2DDrawer) getChartDrawer()).setShowDots("Extrapolation", false);

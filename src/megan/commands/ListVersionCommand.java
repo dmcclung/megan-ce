@@ -19,8 +19,8 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 
 import javax.swing.*;
@@ -54,7 +54,7 @@ public class ListVersionCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/About16.gif");
+        return ResourceManager.getIcon("sun/About16.gif");
     }
 
     public boolean isCritical() {

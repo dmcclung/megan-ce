@@ -18,10 +18,10 @@
  */
 package megan.core;
 
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
 import jloda.util.Pair;
 import jloda.util.Table;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.MainViewer;
 
 import java.awt.*;
@@ -36,6 +36,7 @@ import java.util.*;
  * Daniel Huson, 12.2012
  */
 public class SampleAttributeTable {
+
 
     public enum Type {String, Integer, Float, Date}
 
@@ -52,7 +53,7 @@ public class SampleAttributeTable {
          *
          * @return prefix
          */
-        public static String getPrefix() {
+        static String getPrefix() {
             return "@";
         }
 
@@ -73,15 +74,15 @@ public class SampleAttributeTable {
          */
         public HiddenAttribute getEnum(String label) {
             if (label.startsWith(getPrefix()))
-                return valueOf(label.substring(1, label.length()));
+                return valueOf(label.substring(1));
             else
                 return valueOf(label);
         }
     }
 
     private final Table<String, String, Object> table = new Table<>();
-    private List<String> sampleOrder = new LinkedList<>();
-    private List<String> attributeOrder = new LinkedList<>();
+    private final ArrayList<String> sampleOrder = new ArrayList<>();
+    private final ArrayList<String> attributeOrder = new ArrayList<>();
     private final Map<String, Type> attribute2type = new HashMap<>();
 
     private String description = null;
@@ -233,17 +234,16 @@ public class SampleAttributeTable {
      * @return true, if renamed
      */
     public boolean renameSample(String sample, String newName, boolean allowReplaceSample) {
-        if (allowReplaceSample || !table.rowKeySet().contains(newName)) {
-            Map<String, Object> row = table.row(sample);
+        if (allowReplaceSample || !table.rowKeySet().contains(newName) && sampleOrder.contains(sample)) {
+            sampleOrder.set(sampleOrder.indexOf(sample), newName);
+
+            final Map<String, Object> row = table.row(sample);
             if (row != null) {
                 table.rowKeySet().remove(sample);
                 for (String key : row.keySet()) {
                     table.put(newName, key, row.get(key));
                 }
             }
-            int pos = Math.max(0, sampleOrder.indexOf(sample));
-            sampleOrder.remove(sample);
-            sampleOrder.add(pos, newName);
             return true;
         }
         return false;
@@ -316,11 +316,9 @@ public class SampleAttributeTable {
      * @param attribute
      */
     public void removeAttribute(String attribute) {
-        if (table.columnKeySet().contains(attribute)) {
             attributeOrder.remove(attribute);
             attribute2type.keySet().remove(attribute);
             table.removeColumn(attribute);
-        }
     }
 
     /**
@@ -328,7 +326,7 @@ public class SampleAttributeTable {
      *
      * @param attributes
      */
-    public void removeAttributes(Collection<String> attributes) {
+    private void removeAttributes(Collection<String> attributes) {
         attributeOrder.removeAll(attributes);
         attribute2type.keySet().removeAll(attributes);
         for (String attribute : attributes) {
@@ -362,8 +360,7 @@ public class SampleAttributeTable {
      * @return number of columns added
      */
     public int expandAttribute(String attribute, boolean allowReplaceAttribute) {
-        final Set<Object> values = new TreeSet<>();
-        values.addAll(getSamples2Values(attribute).values());
+        final Set<Object> values = new TreeSet<>(getSamples2Values(attribute).values());
 
         final ArrayList<String> newOrder = new ArrayList<>(getAttributeOrder().size() + values.size());
         newOrder.addAll(getAttributeOrder());
@@ -394,7 +391,7 @@ public class SampleAttributeTable {
      *
      * @return true, if at least one attribute was removed
      */
-    public boolean removeUndefinedAttributes() {
+    private boolean removeUndefinedAttributes() {
         LinkedList<String> undefined = new LinkedList<>();
         for (String attribute : getAttributeSet()) {
             Map<String, Object> sample2values = getSamples2Values(attribute);
@@ -428,11 +425,11 @@ public class SampleAttributeTable {
         return type;
     }
 
-    public void setAttributeType(String attribute, Type type) {
+    private void setAttributeType(String attribute, Type type) {
         attribute2type.put(attribute, type);
     }
 
-    public List<String> getSampleOrder() {
+    public ArrayList<String> getSampleOrder() {
         return sampleOrder;
     }
 
@@ -449,7 +446,7 @@ public class SampleAttributeTable {
         return table.rowKeySet();
     }
 
-    public Set<String> getAttributeSet() {
+    private Set<String> getAttributeSet() {
         return table.columnKeySet();
     }
 
@@ -490,9 +487,8 @@ public class SampleAttributeTable {
         return count;
     }
 
-    public List<String> getUnhiddenAttributes() {
-        ArrayList<String> list = new ArrayList<>(getNumberOfAttributes() + 1);
-        list.add(SAMPLE_ID);
+    public ArrayList<String> getUnhiddenAttributes() {
+        ArrayList<String> list = new ArrayList<>(getNumberOfAttributes());
         for (String attribute : getAttributeOrder())
             if (!isHiddenAttribute(attribute) && !isSecretAttribute(attribute))
                 list.add(attribute);
@@ -520,7 +516,7 @@ public class SampleAttributeTable {
      * @param attribute
      * @return value or null
      */
-    public Object get(String sample, HiddenAttribute attribute) {
+    private Object get(String sample, HiddenAttribute attribute) {
         return table.get(sample, attribute.toString());
     }
 
@@ -559,7 +555,7 @@ public class SampleAttributeTable {
      */
     public Color getSampleColor(String sampleName) {
         Object colorValue = get(sampleName, SampleAttributeTable.HiddenAttribute.Color);
-        if (colorValue != null && colorValue instanceof Integer) {
+        if (colorValue instanceof Integer) {
             return new Color((Integer) colorValue);
         } else
             return null;
@@ -678,7 +674,7 @@ public class SampleAttributeTable {
      *
      * @param attribute
      */
-    public void setAttributeTypeFromValues(String attribute) {
+    private void setAttributeTypeFromValues(String attribute) {
         boolean isFloat = true;
         boolean isInteger = true;
         boolean isDate = true;
@@ -746,7 +742,7 @@ public class SampleAttributeTable {
     /**
      * set the attribute types from given values
      */
-    public void setAllAttributeTypesFromValues() {
+    private void setAllAttributeTypesFromValues() {
         for (String attribute : getAttributeSet()) {
             setAttributeTypeFromValues(attribute);
         }
@@ -860,7 +856,7 @@ public class SampleAttributeTable {
         StringWriter w = new StringWriter();
         try {
             write(w, false, true);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         return w.toString().getBytes();
     }
@@ -909,7 +905,7 @@ public class SampleAttributeTable {
                     attributesOrder.add(attribute);
                 }
 
-                final String[] pos2attribute = attributesOrder.toArray(new String[attributesOrder.size()]);
+                final String[] pos2attribute = attributesOrder.toArray(new String[0]);
 
                 for (int i = 0; i < pos2attribute.length; i++) {
                     if (isHiddenAttribute(pos2attribute[i])) // don't import hidden attributes
@@ -987,8 +983,7 @@ public class SampleAttributeTable {
      */
     public Collection<String> getNumericalAttributes() {
         final Map<String, float[]> attributes = getNumericalAttributes(getUnhiddenAttributes());
-        final SortedSet<String> result = new TreeSet<>();
-        result.addAll(attributes.keySet());
+        final SortedSet<String> result = new TreeSet<>(attributes.keySet());
         return result;
     }
 
@@ -1012,8 +1007,7 @@ public class SampleAttributeTable {
 
         final HashMap<String, float[]> result = new HashMap<>();
 
-        final Set<String> hiddenAttributes = new HashSet<>();
-        hiddenAttributes.addAll(Arrays.asList("BarcodeSequence", "LinkerPrimerSequence", "Description"));
+        final Set<String> hiddenAttributes = new HashSet<>(Arrays.asList("BarcodeSequence", "LinkerPrimerSequence", "Description"));
         for (String name : getAttributeOrder()) {
             if (isSecretAttribute(name) || isHiddenAttribute(name) || name.equals("Size") || hiddenAttributes.contains(name))
                 continue;
@@ -1113,27 +1107,23 @@ public class SampleAttributeTable {
                     undefined.add(sample);
             }
 
-            Pair<Object, String>[] array = list.toArray(new Pair[list.size()]);
+            Pair<Object, String>[] array = list.toArray(new Pair[0]);
 
             switch (getAttributeType(attribute)) {
                 case Integer:
                 case Float:
-                    Arrays.sort(array, new Comparator<Pair<Object, String>>() {
-                        public int compare(Pair<Object, String> p1, Pair<Object, String> p2) {
-                            Float a1 = Float.parseFloat(p1.get1().toString());
-                            Float a2 = Float.parseFloat(p2.get1().toString());
-                            return ascending ? a1.compareTo(a2) : -a1.compareTo(a2);
-                        }
+                    Arrays.sort(array, (p1, p2) -> {
+                        Float a1 = Float.parseFloat(p1.get1().toString());
+                        Float a2 = Float.parseFloat(p2.get1().toString());
+                        return ascending ? a1.compareTo(a2) : -a1.compareTo(a2);
                     });
                     break;
                 default:
                 case String:
-                    Arrays.sort(array, new Comparator<Pair<Object, String>>() {
-                        public int compare(Pair<Object, String> p1, Pair<Object, String> p2) {
-                            String a1 = p1.get1().toString();
-                            String a2 = p2.get1().toString();
-                            return ascending ? a1.compareTo(a2) : -a1.compareTo(a2);
-                        }
+                    Arrays.sort(array, (p1, p2) -> {
+                        String a1 = p1.get1().toString();
+                        String a2 = p2.get1().toString();
+                        return ascending ? a1.compareTo(a2) : -a1.compareTo(a2);
                     });
                     break;
             }
@@ -1187,4 +1177,35 @@ public class SampleAttributeTable {
         return sampleAttributeTable;
     }
 
+    /**
+     * move set of sample up or down one position
+     *
+     * @param up
+     * @param samples
+     */
+    public void moveSamples(boolean up, Collection<String> samples) {
+        samples = Basic.sortSubsetAsContainingSet(sampleOrder, samples);
+        if (up) {
+            for (String sample : samples) {
+                final int index = sampleOrder.indexOf(sample);
+                swapSamples(index, index - 1);
+            }
+        } else { // down
+            for (String sample : Basic.reverseList(samples)) {
+                final int index = sampleOrder.indexOf(sample);
+                swapSamples(index, index + 1);
+            }
+        }
+    }
+
+    private void swapSamples(int index1, int index2) {
+        final int min = Math.min(index1, index2);
+        final int max = Math.max(index1, index2);
+        if (min != max && min >= 0 && max < sampleOrder.size()) {
+            final String minSample = sampleOrder.get(min);
+            final String maxSample = sampleOrder.get(max);
+            sampleOrder.set(min, maxSample);
+            sampleOrder.set(max, minSample);
+        }
+    }
 }

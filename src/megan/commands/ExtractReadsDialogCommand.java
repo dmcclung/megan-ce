@@ -19,6 +19,7 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
 import jloda.util.parse.NexusStreamParser;
@@ -28,7 +29,6 @@ import megan.core.Director;
 import megan.core.Document;
 import megan.data.IName2IdMap;
 import megan.dialogs.extractor.ReadsExtractor;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.TaxonomyData;
 import megan.viewer.ViewerBase;
 
@@ -140,7 +140,7 @@ public class ExtractReadsDialogCommand extends CommandBase implements ICommand {
         return getDir().getDocument().getNumberOfReads() > 0;
     }
 
-    final public static String NAME = "Extract Reads...";
+    private final static String NAME = "Extract Reads...";
 
     public String getName() {
         return NAME;

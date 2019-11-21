@@ -20,9 +20,9 @@ package megan.classification.commandtemplates;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.ClassificationManager;
 import megan.core.Director;
@@ -73,14 +73,11 @@ public class OpenFViewerCommand extends CommandBase implements ICommand {
                 return;
             }
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                classificationViewer.updateView(Director.ALL);
-                classificationViewer.getFrame().setVisible(true);
-                classificationViewer.getFrame().setState(JFrame.NORMAL);
-                classificationViewer.getFrame().toFront();
-            }
+        SwingUtilities.invokeLater(() -> {
+            classificationViewer.updateView(Director.ALL);
+            classificationViewer.getFrame().setVisible(true);
+            classificationViewer.getFrame().setState(JFrame.NORMAL);
+            classificationViewer.getFrame().toFront();
         });
     }
 
@@ -132,18 +129,16 @@ public class OpenFViewerCommand extends CommandBase implements ICommand {
     @Override
     public ImageIcon getIcon() {
         final String iconFile = ClassificationManager.getIconFileName(cName);
-        if (iconFile != null) {
-            if (ResourceManager.getImageResource(ResourceManager.iconPackagePath, iconFile) == null && ResourceManager.getIconMap().get(iconFile) == null) { // no icon file found, build an icon....
+        if (ResourceManager.getImage(iconFile) == null && ResourceManager.getIcon(iconFile) == null) { // no icon file found, build an icon....
                 ResourceManager.getIconMap().put(iconFile, new MyImageIcon(iconFile));
             }
-        }
-        return iconFile == null ? null : ResourceManager.getIcon(iconFile);
+        return ResourceManager.getIcon(iconFile);
     }
 
     /**
      * icon to represent classification
      */
-    class MyImageIcon extends ImageIcon {
+    static class MyImageIcon extends ImageIcon {
         /**
          * construct icon
          *

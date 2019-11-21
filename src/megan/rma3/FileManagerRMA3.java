@@ -19,10 +19,10 @@
 package megan.rma3;
 
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.TextFileFilter;
 import jloda.util.Basic;
 import jloda.util.GZipUtils;
+import jloda.util.ProgramProperties;
 import megan.io.InputOutputReaderWriter;
 
 import javax.swing.*;
@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public class FileManagerRMA3 {
     private boolean dontAskAny = !ProgramProperties.isUseGUI();
-    private Set<String> tabooSet = new HashSet<>();
+    private final Set<String> tabooSet = new HashSet<>();
     private static FileManagerRMA3 instance;
 
     private FileManagerRMA3() {
@@ -110,7 +110,8 @@ public class FileManagerRMA3 {
                 if ((new File(fileName + ".gz")).exists()) {
                     System.err.println("Run gunzip on: " + fileName + ".gz");
                     int response = JOptionPane.showConfirmDialog(null, "Required " + type + " file '" + file.getName() + "' is compressed, decompress?",
-                            type + " file is compressed", JOptionPane.YES_NO_CANCEL_OPTION);
+                            type + " file is compressed", JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon());
                     switch (response) {
                         case JOptionPane.YES_OPTION:
                             GZipUtils.inflate(fileName + ".gz", fileName);
@@ -143,8 +144,7 @@ public class FileManagerRMA3 {
                         throw new IOException("No such file: " + altFile);
 
 
-                    RMA3FileModifier modifier = new RMA3FileModifier(rma3File);
-                    try {
+                    try (RMA3FileModifier modifier = new RMA3FileModifier(rma3File)) {
                         final FileFooterRMA3 footer = modifier.getFileFooter();
 
                         if (alignmentFile) {
@@ -164,8 +164,6 @@ public class FileManagerRMA3 {
                             io.seek(footer.getFileFooter());
                             footer.write(io);
                         }
-                    } finally {
-                        modifier.close();
                     }
                     return altFile;
 

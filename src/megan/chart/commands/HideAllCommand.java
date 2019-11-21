@@ -61,8 +61,7 @@ public class HideAllCommand extends CommandBase implements ICommand {
         } else if (what.equalsIgnoreCase("selected")) {
             list.disableLabels(list.getSelectedLabels());
         } else if (what.equalsIgnoreCase("unselected")) {
-            final Set<String> labels = new HashSet<>();
-            labels.addAll(list.getAllLabels());
+            final Set<String> labels = new HashSet<>(list.getAllLabels());
             labels.removeAll(list.getSelectedLabels());
             list.disableLabels(labels);
         } else  // all

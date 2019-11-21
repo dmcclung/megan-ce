@@ -19,17 +19,17 @@
 package megan.commands.preferences;
 
 import jloda.swing.commands.ICheckBoxCommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ShowNotificationsCommand extends CommandBase implements ICheckBoxCommand {
-    static final GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
+    private static final GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
 
     @Override
     public boolean isSelected() {
@@ -64,7 +64,7 @@ public class ShowNotificationsCommand extends CommandBase implements ICheckBoxCo
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
 
     }
 

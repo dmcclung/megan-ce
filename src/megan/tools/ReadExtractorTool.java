@@ -19,7 +19,7 @@
 package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.util.ResourceManager;
 import jloda.util.*;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
@@ -30,7 +30,7 @@ import megan.data.IConnector;
 import megan.dialogs.export.ReadsExporter;
 import megan.dialogs.export.analysis.FrameShiftCorrectedReadsExporter;
 import megan.dialogs.extractor.ReadsExtractor;
-import megan.parsers.blast.BlastMode;
+import megan.main.Megan6;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +50,7 @@ public class ReadExtractorTool {
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("ReadExtractorTool");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -71,7 +72,7 @@ public class ReadExtractorTool {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public void run(String[] args) throws UsageException, IOException, ClassNotFoundException, CanceledException {
+    private void run(String[] args) throws UsageException, IOException, ClassNotFoundException, CanceledException {
         final ArgsOptions options = new ArgsOptions(args, this, "Extracts reads from a DAA or RMA file by classification");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
@@ -153,7 +154,7 @@ public class ReadExtractorTool {
         final IConnector connector = doc.getConnector();
 
         if (extractCorrectedReads && doc.getBlastMode() != BlastMode.BlastX)
-            throw new IOException("Frame-shift correction only possible when BlastMode is BLASTX");
+            throw new IOException("Frame-shift correction only possible when BlastModeUtils is BLASTX");
 
         if (all) {
             try (ProgressPercentage progress = new ProgressPercentage("Processing file: " + inputFile)) {

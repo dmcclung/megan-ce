@@ -62,7 +62,7 @@ public class DisableTaxonCommand extends ClipboardBase implements ICommand {
         return inspectorWindow != null && inspectorWindow.hasSelectedMatchHeadLineNodes();
     }
 
-    public static final String NAME = "Disable Taxon";
+    private static final String NAME = "Disable Taxon";
 
     public String getName() {
         return NAME;

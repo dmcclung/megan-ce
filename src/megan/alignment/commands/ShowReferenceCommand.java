@@ -75,7 +75,7 @@ public class ShowReferenceCommand extends CommandBase implements ICheckBoxComman
         execute("set show-reference=" + !isSelected() + ";");
     }
 
-    public static final String NAME = "Show Reference";
+    private static final String NAME = "Show Reference";
 
     public String getName() {
         return NAME;

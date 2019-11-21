@@ -48,7 +48,7 @@ public class ColorByPositionCommand extends CommandBase implements ICheckBoxComm
         return true;
     }
 
-    public static String NAME = "Color Classes By Position";
+    public static final String NAME = "Color Classes By Position";
 
     public String getName() {
         return NAME;

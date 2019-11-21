@@ -19,8 +19,8 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 
 import javax.swing.*;
@@ -57,7 +57,7 @@ public class PageSetupCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/PageSetup16.gif");
+        return ResourceManager.getIcon("sun/PageSetup16.gif");
     }
 
     /**

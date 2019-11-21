@@ -20,12 +20,12 @@ package megan.alignment.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Pair;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentViewer;
 import megan.alignment.ComputeAlignmentProperties;
 import megan.core.Director;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -78,7 +78,7 @@ public class ComputeDiversityCommand extends CommandBase implements ICommand {
         execute("compute diversityRatio kmer=25 step=25 mindepth=10;");
     }
 
-    public static final String NAME = "Compute Diversity...";
+    private static final String NAME = "Compute Diversity...";
 
     public String getName() {
         return NAME;

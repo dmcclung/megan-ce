@@ -19,12 +19,12 @@
 package megan.commands.algorithms;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.TwoInputOptionsPanel;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
-import megan.fx.NotificationsInSwing;
 import megan.samplesviewer.SamplesViewer;
 import megan.viewer.ClassificationViewer;
 
@@ -47,7 +47,7 @@ public class ComputeRareBiomeCommand extends CommandBase implements ICommand {
     public void actionPerformed(ActionEvent event) {
         final Collection<String> samples;
         if (getViewer() instanceof SamplesViewer)
-            samples = ((SamplesViewer) getViewer()).getSamplesTable().getSelectedSamplesInOrder();
+            samples = ((SamplesViewer) getViewer()).getSamplesTableView().getSelectedSamples();
         else if (getViewer() instanceof ClassificationViewer)
             samples = ((ClassificationViewer) getViewer()).getDocument().getSampleNames();
         else
@@ -77,7 +77,7 @@ public class ComputeRareBiomeCommand extends CommandBase implements ICommand {
     }
 
     public boolean isApplicable() {
-        return getViewer() instanceof ClassificationViewer || getViewer() instanceof SamplesViewer && ((SamplesViewer) getViewer()).getSamplesTable().getNumberOfSelectedSamples() > 1;
+        return getViewer() instanceof ClassificationViewer || getViewer() instanceof SamplesViewer && ((SamplesViewer) getViewer()).getSamplesTableView().getCountSelectedSamples() > 1;
     }
 
     public boolean isCritical() {

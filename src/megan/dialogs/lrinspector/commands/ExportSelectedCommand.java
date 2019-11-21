@@ -20,6 +20,7 @@ package megan.dialogs.lrinspector.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
 import jloda.swing.util.ResourceManager;
 import jloda.swing.util.TextFileFilter;
@@ -28,7 +29,6 @@ import jloda.util.parse.NexusStreamParser;
 import megan.core.Document;
 import megan.daa.io.ByteInputStream;
 import megan.dialogs.lrinspector.LRInspectorViewer;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -98,7 +98,7 @@ public class ExportSelectedCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public KeyStroke getAcceleratorKey() {

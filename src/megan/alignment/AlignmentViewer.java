@@ -26,10 +26,10 @@ import jloda.swing.director.ProjectManager;
 import jloda.swing.find.FindToolBar;
 import jloda.swing.find.JListSearcher;
 import jloda.swing.find.SearchManager;
-import jloda.swing.util.MenuBar;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.StatusBar;
 import jloda.swing.util.ToolBar;
+import jloda.swing.window.MenuBar;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.*;
 import megan.alignment.commands.*;
 import megan.alignment.gui.*;
@@ -38,7 +38,6 @@ import megan.alignment.gui.colors.ColorSchemeNucleotides;
 import megan.alignment.gui.colors.ColorSchemeText;
 import megan.assembly.alignment.AlignmentAssembler;
 import megan.core.Director;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.viewer.MainViewer;
 
@@ -234,15 +233,13 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
                     mousePressed(me);
             }
         });
-        referenceJList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent evt) {
-                if (!evt.getValueIsAdjusting()) {
-                    ReferenceItem item = (ReferenceItem) referenceJList.getSelectedValue();
-                    if (item != null)
-                        setSelectedReference(item.name);
-                    else
-                        setSelectedReference(null);
-                }
+        referenceJList.addListSelectionListener(evt -> {
+            if (!evt.getValueIsAdjusting()) {
+                ReferenceItem item = (ReferenceItem) referenceJList.getSelectedValue();
+                if (item != null)
+                    setSelectedReference(item.name);
+                else
+                    setSelectedReference(null);
             }
         });
 
@@ -289,14 +286,12 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
             }
         });
 
-        getSelectedBlock().addSelectionListener(new ISelectionListener() {
-            public void doSelectionChanged(boolean selected, int minRow, int minCol, int maxRow, int maxCol) {
-                commandManager.updateEnableState();
-                if (getSelectedBlock().isSelected())
-                    statusBar.setText2("Selection: " + getSelectedBlock().getNumberOfSelectedRows() + " x " + getSelectedBlock().getNumberOfSelectedCols());
-                else
-                    statusBar.setText2(infoString);
-            }
+        getSelectedBlock().addSelectionListener((selected, minRow, minCol, maxRow, maxCol) -> {
+            commandManager.updateEnableState();
+            if (getSelectedBlock().isSelected())
+                statusBar.setText2("Selection: " + getSelectedBlock().getNumberOfSelectedRows() + " x " + getSelectedBlock().getNumberOfSelectedCols());
+            else
+                statusBar.setText2(infoString);
         });
         if (alignmentViewerPanel.isShowReference())
             alignmentViewerPanel.setShowReference(true); // rescan size of reference panel
@@ -322,15 +317,13 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
         int v = getAlignmentViewerPanel().getAlignmentScrollPane().getVerticalScrollBar().getValue();
 
         if (referenceJList.getModel().getSize() == 1 && referenceJList.getModel().getElementAt(0).toString().contains("Loading...")) {
-            SortedSet<ReferenceItem> sorted = new TreeSet<>(new Comparator<ReferenceItem>() {
-                public int compare(ReferenceItem a, ReferenceItem b) {
-                    if (a.count > b.count)
-                        return -1;
-                    else if (a.count < b.count)
-                        return 1;
-                    else
-                        return a.getText().compareTo(b.getText());
-                }
+            SortedSet<ReferenceItem> sorted = new TreeSet<>((a, b) -> {
+                if (a.count > b.count)
+                    return -1;
+                else if (a.count < b.count)
+                    return 1;
+                else
+                    return a.getText().compareTo(b.getText());
             });
             for (String reference : blast2Alignment.getReferences()) {
                 sorted.add(new ReferenceItem(blast2Alignment.getReference2Count(reference), reference));
@@ -402,17 +395,17 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
         this.showInsertions = showInsertions;
     }
 
-    class ReferenceItem extends JButton {
-        int count;
-        String name;
+    static class ReferenceItem extends JButton {
+        final int count;
+        final String name;
 
-        public ReferenceItem(Integer count, String name) {
+        ReferenceItem(Integer count, String name) {
             this.count = count;
             this.name = name;
             setBold(true);
         }
 
-        public void setBold(boolean bold) {
+        void setBold(boolean bold) {
             if (bold)
                 setText("<html><strong>" + name + ":: " + count + "</strong></html>");     // store negative count to get correct sorting
             else
@@ -481,7 +474,7 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
     /**
      * set the title of the window
      */
-    public void setTitle() {
+    private void setTitle() {
         String className = getAlignment().getName();
         if (className == null)
             className = "Untitled";
@@ -523,7 +516,7 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
         alignment.getGapColumnContractor().processAlignment(alignment);
         try {
             setAlignmentLayout(getAlignmentLayout(), new ProgressPercentage());
-        } catch (CanceledException e) {
+        } catch (CanceledException ignored) {
         }
         if (isShowAsMapping()) {
             alignment.getRowCompressor().update();
@@ -532,7 +525,7 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
             try {
                 if (getAlignmentLayout() != AlignmentLayout.ByContigs) // todo: not sure this is ok, but want to avoid doing assembly twice
                     setAlignmentLayout(getAlignmentLayout(), new ProgressPercentage());
-            } catch (CanceledException e) {
+            } catch (CanceledException ignored) {
             }
         }
 
@@ -625,7 +618,7 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
 
             double scale_x = paper_w / image_w;
             double scale_y = paper_h / image_h;
-            double scale = (scale_x <= scale_y) ? scale_x : scale_y;
+            double scale = Math.min(scale_x, scale_y);
 
             double shift_x = paper_x + (paper_w - scale * image_w) / 2.0;
             double shift_y = paper_y + (paper_h - scale * image_h) / 2.0;
@@ -806,7 +799,7 @@ public class AlignmentViewer extends JFrame implements IDirectableViewer, IViewe
         return selectedReference;
     }
 
-    public void setSelectedReference(String selectedReference) {
+    private void setSelectedReference(String selectedReference) {
         this.selectedReference = selectedReference;
     }
 

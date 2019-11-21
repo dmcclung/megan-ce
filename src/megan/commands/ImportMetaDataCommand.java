@@ -19,14 +19,14 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.swing.util.TextFileFilter;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.core.Document;
-import megan.fx.NotificationsInSwing;
 import megan.samplesviewer.SamplesViewer;
 
 import javax.swing.*;
@@ -58,15 +58,15 @@ public class ImportMetaDataCommand extends CommandBase implements ICommand {
 
         if (clearExisting) {
             System.err.println("Cleared existing metadata");
-            if (samplesViewer != null)
-                samplesViewer.getSamplesTable().getDataGrid().clear();
+            if (samplesViewer != null) {
+                samplesViewer.getSamplesTableView().clear();
+            }
             doc.getSampleAttributeTable().clear();
         } else {
             System.err.println("Overwriting metadata");
+            if (samplesViewer != null)
+                samplesViewer.getSamplesTableView().syncFromViewToDocument();
         }
-
-        if (samplesViewer != null)
-            samplesViewer.getSamplesTable().getDataGrid().save(samplesViewer.getSampleAttributeTable(), null);
 
         final int oldNumberOfSamples = doc.getNumberOfSamples();
         final int oldNumberOfAttributes = doc.getSampleAttributeTable().getNumberOfAttributes();
@@ -82,7 +82,7 @@ public class ImportMetaDataCommand extends CommandBase implements ICommand {
 
         doc.setDirty(true);
         if (samplesViewer != null) {
-            samplesViewer.getSamplesTable().syncFromDocument();
+            samplesViewer.getSamplesTableView().syncFromDocumentToView();
         }
 
         NotificationsInSwing.showInformation(getViewer().getFrame(), "Number of attributes imported: " + (doc.getSampleAttributeTable().getNumberOfAttributes() - oldNumberOfAttributes));
@@ -92,7 +92,8 @@ public class ImportMetaDataCommand extends CommandBase implements ICommand {
         final File lastOpenFile = ProgramProperties.getFile("MetaDataFilePath");
         final File file = ChooseFileDialog.chooseFileToOpen(getViewer().getFrame(), lastOpenFile, new TextFileFilter(".csv"), new TextFileFilter(".csv"), event, "Open metadata mapping file");
         if (file != null && file.length() > 0) {
-            int result = JOptionPane.showConfirmDialog(getViewer().getFrame(), "Clear existing metadata?", "Clear existing metadata?", JOptionPane.YES_NO_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog(getViewer().getFrame(), "Clear existing metadata?", "Clear existing metadata?", JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon());
             if (result == JOptionPane.CANCEL_OPTION)
                 return;
             execute("import metadata='" + file.getPath() + "' clearExisting=" + (result == JOptionPane.YES_OPTION) + ";show window=samplesViewer;");
@@ -115,7 +116,7 @@ public class ImportMetaDataCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     public String getDescription() {

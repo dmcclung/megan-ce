@@ -21,9 +21,9 @@ package megan.dialogs.compare.commands;
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.IDirector;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
 import megan.dialogs.compare.CompareWindow;
@@ -83,7 +83,7 @@ public class AddFilesCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Open16.gif");
+        return ResourceManager.getIcon("sun/Open16.gif");
     }
 
     /**
@@ -134,7 +134,7 @@ public class AddFilesCommand extends CommandBase implements ICommand {
             getDir().notifyUnlockInput();
         }
 
-        if (files != null && files.size() > 0) {
+        if (files.size() > 0) {
             StringBuilder buf = new StringBuilder();
             for (File file : files) {
                 if (file != null && file.exists() && file.canRead()) {

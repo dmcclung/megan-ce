@@ -56,7 +56,7 @@ public class UseProgramColorsCommand extends CommandBase implements ICheckBoxCom
         return true;
     }
 
-    public static String NAME = "Use Program Color Table";
+    public static final String NAME = "Use Program Color Table";
 
     public String getName() {
         return NAME;

@@ -21,6 +21,7 @@ package megan.daa;
 
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import jloda.util.ProgressListener;
 import megan.classification.Classification;
 import megan.core.ContaminantManager;
@@ -63,8 +64,12 @@ public class Meganize {
                              int minSupport, boolean pairedReads, int pairedReadsSuffixLength, Document.LCAAlgorithm lcaAlgorithm, Document.ReadAssignmentMode readAssignmentMode, float lcaCoveragePercent, boolean longReads, float minPercentReadToCover, float minPercentReferenceToCover, String contaminantsFile) throws IOException, CanceledException {
 
         progress.setTasks("Meganizing", "init");
+        final long start = System.currentTimeMillis();
 
         DAAReferencesAnnotator.apply(daaFile, true, cNames, progress);
+
+        if (ProgramProperties.get("enable-database-lookup", false))
+            System.err.println(String.format("(Reference annotation of file %s took %.1f sec)", daaFile, (System.currentTimeMillis() - start) / 1000.0));
 
         final Document doc = new Document();
         doc.setOpenDAAFileOnlyIfMeganized(false);
@@ -122,5 +127,8 @@ public class Meganize {
         header.load();
         header.setReserved3(DAAHeader.MEGAN_VERSION);
         header.save();
+
+        if (ProgramProperties.get("enable-database-lookup", false))
+            System.err.println(String.format("(Meganization of file %s took %.1f sec)", daaFile, (System.currentTimeMillis() - start) / 1000.0));
     }
 }

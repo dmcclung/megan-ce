@@ -20,14 +20,13 @@ package megan.dialogs.extractor.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.dialogs.extractor.ExtractReadsViewer;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -68,14 +67,10 @@ public class ChooseDirectoryCommand extends CommandBase implements ICommand {
         String fileName = null;
         if (((Director) getDir()).getDocument().getMeganFile().getFileName() != null && !((Director) getDir()).getDocument().getMeganFile().isMeganServerFile())
             fileName = new File(((Director) getDir()).getDocument().getMeganFile().getFileName()).getParent();
-        if (ProgramProperties.isMacOS() && (event != null && (event.getModifiers() & Event.SHIFT_MASK) == 0)) {
+        if (ProgramProperties.isMacOS() && (event != null && (event.getModifiers() & ActionEvent.SHIFT_MASK) == 0)) {
             //Use native file dialog on mac
             java.awt.FileDialog dialog = new java.awt.FileDialog(getViewer().getFrame(), "Open output directory", java.awt.FileDialog.LOAD);
-            dialog.setFilenameFilter(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return true;
-                }
-            });
+            dialog.setFilenameFilter((dir, name) -> true);
             if (fileName != null) {
                 dialog.setDirectory(fileName);
                 //dialog.setFile(fileName);

@@ -21,9 +21,9 @@ package megan.samplesviewer.commands;
 import javafx.application.Platform;
 import javafx.scene.control.ChoiceDialog;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.clipboard.ClipboardBase;
 import megan.samplesviewer.SamplesViewer;
@@ -45,34 +45,31 @@ public class PasteByAttributeCommand extends ClipboardBase implements ICommand {
     }
 
     public void actionPerformed(ActionEvent event) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                SamplesViewer samplesViewer = (SamplesViewer) getViewer();
-                final java.util.List<String> list = getDoc().getSampleAttributeTable().getUnhiddenAttributes();
-                if (list.size() > 0) {
-                    String choice = ProgramProperties.get("PasteByAttribute", list.get(0));
-                    if (!list.contains(choice))
-                        choice = list.get(0);
+        Platform.runLater(() -> {
+            SamplesViewer samplesViewer = (SamplesViewer) getViewer();
+            final java.util.List<String> list = getDoc().getSampleAttributeTable().getUnhiddenAttributes();
+            if (list.size() > 0) {
+                String choice = ProgramProperties.get("PasteByAttribute", list.get(0));
+                if (!list.contains(choice))
+                    choice = list.get(0);
 
-                    final ChoiceDialog<String> dialog = new ChoiceDialog<>(choice, list);
-                    dialog.setTitle("Paste By Attribute");
-                    dialog.setHeaderText("Select an attribute to guide paste");
-                    Optional<String> result = dialog.showAndWait();
-                    if (result.isPresent()) {
-                        final String selected = result.get();
-                        try {
-                            ProgramProperties.put("PasteByAttribute", selected);
-                            samplesViewer.getSamplesTable().pasteClipboardByAttribute(selected);
-                            samplesViewer.getSamplesTable().getDataGrid().save(samplesViewer.getSampleAttributeTable(), null);
-                            samplesViewer.getCommandManager().updateEnableStateFXItems();
-                            if (!samplesViewer.getDocument().isDirty() && samplesViewer.getSamplesTable().getDataGrid().isChanged(samplesViewer.getSampleAttributeTable())) {
-                                samplesViewer.getDocument().setDirty(true);
-                                samplesViewer.setWindowTitle();
-                            }
-                        } catch (IOException e) {
-                            Basic.caught(e);
+                final ChoiceDialog<String> dialog = new ChoiceDialog<>(choice, list);
+                dialog.setTitle("Paste By Attribute");
+                dialog.setHeaderText("Select an attribute to guide paste");
+                Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    final String selected = result.get();
+                    try {
+                        ProgramProperties.put("PasteByAttribute", selected);
+                        samplesViewer.getSamplesTableView().pasteClipboardByAttribute(selected);
+                        samplesViewer.getSamplesTableView().syncFromViewToDocument();
+                        samplesViewer.getCommandManager().updateEnableStateFXItems();
+                        if (!samplesViewer.getDocument().isDirty() && samplesViewer.getSamplesTableView().isDirty()) {
+                            samplesViewer.getDocument().setDirty(true);
+                            samplesViewer.setWindowTitle();
                         }
+                    } catch (IOException e) {
+                        Basic.caught(e);
                     }
                 }
             }
@@ -80,10 +77,10 @@ public class PasteByAttributeCommand extends ClipboardBase implements ICommand {
     }
 
     public boolean isApplicable() {
-        return getViewer() instanceof SamplesViewer && ((SamplesViewer) getViewer()).getSamplesTable().getNumberOfSelectedCols() > 0;
+        return getViewer() instanceof SamplesViewer && ((SamplesViewer) getViewer()).getSamplesTableView().getCountSelectedAttributes() > 0;
     }
 
-    public static final String ALT_NAME = "Samples Viewer Paste By Attribute";
+    private static final String ALT_NAME = "Samples Viewer Paste By Attribute";
 
     public String getAltName() {
         return ALT_NAME;
@@ -99,7 +96,7 @@ public class PasteByAttributeCommand extends ClipboardBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Paste16.gif");
+        return ResourceManager.getIcon("sun/Paste16.gif");
     }
 
     public boolean isCritical() {
@@ -107,7 +104,7 @@ public class PasteByAttributeCommand extends ClipboardBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | java.awt.event.InputEvent.SHIFT_MASK);
+        return KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | java.awt.event.InputEvent.SHIFT_DOWN_MASK);
     }
 }
 

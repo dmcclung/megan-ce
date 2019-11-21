@@ -22,10 +22,10 @@ import jloda.swing.commands.CommandManager;
 import jloda.swing.director.IDirectableViewer;
 import jloda.swing.director.IDirector;
 import jloda.swing.director.ProjectManager;
-import jloda.swing.util.MenuBar;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.StatusBar;
+import jloda.swing.window.MenuBar;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import megan.commands.CloseCommand;
 import megan.core.ClassificationType;
 import megan.core.Director;
@@ -73,8 +73,7 @@ public class ExtractReadsViewer extends JFrame implements IDirectableViewer {
 
         setSize(500, 165);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        if (ProgramProperties.getProgramIcon() != null)
-            setIconImage(ProgramProperties.getProgramIcon().getImage());
+        setIconImages(ProgramProperties.getProgramIconImages());
 
         StatusBar statusBar = new StatusBar(false);
 
@@ -201,7 +200,7 @@ public class ExtractReadsViewer extends JFrame implements IDirectableViewer {
     /**
      * set the title of the window
      */
-    public void setTitle() {
+    private void setTitle() {
         String newTitle = "Extract by " + getMode() + " - " + dir.getDocument().getTitle();
 
         /*

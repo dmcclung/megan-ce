@@ -19,7 +19,7 @@
 package megan.clusteranalysis.commands;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.clusteranalysis.ClusterViewer;
 import megan.commands.CommandBase;
@@ -42,7 +42,7 @@ public class CorrelateClassToAttributeCommand extends CommandBase implements ICo
         ClusterViewer viewer = (ClusterViewer) getViewer();
         Collection<Integer> ids = viewer.getSelectedClassIds();
         if (ids.size() > 0 && list.size() > 0) {
-            final String[] choices = list.toArray(new String[list.size()]);
+            final String[] choices = list.toArray(new String[0]);
             String choice = ProgramProperties.get("CorrelateToAttribute", choices[0]);
             if (!list.contains(choice))
                 choice = choices[0];

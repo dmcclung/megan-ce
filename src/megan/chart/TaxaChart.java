@@ -21,9 +21,9 @@ package megan.chart;
 import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.graph.NodeSet;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import megan.chart.data.DefaultChartData;
 import megan.chart.data.IChartData;
 import megan.chart.drawers.BarChartDrawer;
@@ -99,7 +99,8 @@ public class TaxaChart extends ChartViewer {
                     java.util.Collection<String> selectedIds = getClassesList().getSelectedLabels();
                     if (selectedIds.size() > 0) {
                         if (selectedIds.size() >= 5 && JOptionPane.showConfirmDialog(getFrame(), "Do you really want to open " + selectedIds.size() +
-                                " windows in your browser?", "Confirmation - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.YES_OPTION)
+                                        " windows in your browser?", "Confirmation - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon()) != JOptionPane.YES_OPTION)
                             return;
                         for (String label : selectedIds) {
                             try {
@@ -123,7 +124,8 @@ public class TaxaChart extends ChartViewer {
                     java.util.Collection<String> selectedIds = getClassesList().getSelectedLabels();
                     if (selectedIds.size() > 0) {
                         if (selectedIds.size() >= 5 && JOptionPane.showConfirmDialog(getFrame(), "Do you really want to open " + selectedIds.size() +
-                                " windows in your browser?", "Confirmation - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.YES_OPTION)
+                                        " windows in your browser?", "Confirmation - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon()) != JOptionPane.YES_OPTION)
                             return;
                         for (String label : selectedIds) {
                             try {
@@ -184,7 +186,7 @@ public class TaxaChart extends ChartViewer {
 
                 chartData.setAllSeries(doc.getSampleNames());
 
-                final String[] names = doc.getSampleNames().toArray(new String[doc.getSampleNames().size()]);
+                final String[] names = doc.getSampleNames().toArray(new String[0]);
                 final float[] totalSizes = new float[doc.getSampleNames().size()];
 
                 syncedNodes = mainViewer.getSelectedNodes();

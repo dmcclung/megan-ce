@@ -19,16 +19,16 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.ClassificationManager;
 import megan.classification.data.SyncDataTableAndClassificationViewer;
 import megan.core.Director;
 import megan.core.Document;
 import megan.core.MeganFile;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.samplesviewer.SamplesViewer;
 import megan.util.MeganFileFilter;
@@ -43,6 +43,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 
 public class SaveCommand extends CommandBase implements ICommand {
@@ -70,8 +71,8 @@ public class SaveCommand extends CommandBase implements ICommand {
             if (summary) {
                 final SamplesViewer sampleViewer = (SamplesViewer) getDir().getViewerByClass(SamplesViewer.class);
                 if (sampleViewer != null) {
-                    sampleViewer.getSamplesTable().getDataGrid().save(doc.getSampleAttributeTable(), null);
-                    sampleViewer.getSamplesTable().getDataGrid().reload(doc.getSampleAttributeTable());
+
+                    sampleViewer.getSamplesTableView().syncFromViewToDocument();
                 }
 
                 if (viewer != null)
@@ -106,7 +107,7 @@ public class SaveCommand extends CommandBase implements ICommand {
             System.err.println("done");
             MeganProperties.addRecentFile(file);
         } catch (IOException ex) {
-            NotificationsInSwing.showError(viewer.getFrame(), "Save file '" + fileName + "'failed: " + ex, Integer.MAX_VALUE);
+            NotificationsInSwing.showError(Objects.requireNonNull(viewer).getFrame(), "Save file '" + fileName + "'failed: " + ex, Integer.MAX_VALUE);
             throw ex;
         }
     }
@@ -160,7 +161,7 @@ public class SaveCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/SaveAs16.gif");
+        return ResourceManager.getIcon("sun/SaveAs16.gif");
     }
 
     public String getDescription() {
@@ -168,7 +169,7 @@ public class SaveCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     public boolean isCritical() {

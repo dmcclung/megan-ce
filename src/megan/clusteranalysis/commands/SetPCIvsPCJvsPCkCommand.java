@@ -19,12 +19,12 @@
 package megan.clusteranalysis.commands;
 
 import jloda.swing.commands.ICheckBoxCommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
 import megan.clusteranalysis.ClusterViewer;
 import megan.clusteranalysis.gui.PCoATab;
 import megan.clusteranalysis.pcoa.PCoA;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -120,7 +120,7 @@ public class SetPCIvsPCJvsPCkCommand extends CommandBase implements ICheckBoxCom
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_6, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_6, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

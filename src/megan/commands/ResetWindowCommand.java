@@ -36,13 +36,10 @@ public class ResetWindowCommand extends jloda.swing.commands.CommandBase impleme
 
         final IDirectableViewer viewer = getViewer();
         // viewer.getFrame().setSize(1000, 1000);\
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                viewer.getFrame().setLocation(100, 100);
-                viewer.getFrame().setVisible(true);
-                viewer.getFrame().toFront();
-            }
+        SwingUtilities.invokeLater(() -> {
+            viewer.getFrame().setLocation(100, 100);
+            viewer.getFrame().setVisible(true);
+            viewer.getFrame().toFront();
         });
     }
 
@@ -63,7 +60,7 @@ public class ResetWindowCommand extends jloda.swing.commands.CommandBase impleme
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

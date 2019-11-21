@@ -20,8 +20,8 @@ package megan.commands;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.ProjectManager;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.chart.ChartColorManager;
 
@@ -43,16 +43,7 @@ public class QuitCommand extends CommandBase implements ICommand {
             ProgramProperties.store();
             System.exit(0);
         } else {    // todo: in non-gui mode, call the code below results in a deadlock...
-            ProjectManager.doQuit(new Runnable() {
-                                      public void run() {
-                                          ChartColorManager.store();
-                                      }
-                                  },
-                    new Runnable() {
-                        public void run() {
-                            NewCommand.makeNewDocument();
-                        }
-                    });
+            ProjectManager.doQuit(ChartColorManager::store, NewCommand::makeNewDocument);
         }
     }
 
@@ -69,7 +60,7 @@ public class QuitCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     public String getDescription() {
@@ -77,7 +68,7 @@ public class QuitCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Stop16.gif");
+        return ResourceManager.getIcon("sun/Stop16.gif");
     }
 
     public boolean isCritical() {

@@ -22,14 +22,13 @@ package megan.core;
 import jloda.graph.Edge;
 import jloda.graph.Node;
 import jloda.util.Basic;
-import jloda.util.FileInputIterator;
+import jloda.util.FileLineIterator;
 import megan.data.IReadBlock;
 import megan.viewer.TaxonomyData;
 
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -50,7 +49,7 @@ public class ContaminantManager {
         contaminants.clear();
         contaminantsAndDescendants.clear();
 
-        try (FileInputIterator it = new FileInputIterator(file)) {
+        try (FileLineIterator it = new FileLineIterator(file)) {
             while (it.hasNext()) {
                 final String aLine = it.next();
                 final int taxonId;
@@ -63,7 +62,7 @@ public class ContaminantManager {
             }
         }
         if (contaminants.size() > 0)
-            setAllDescendentsRec(TaxonomyData.getTree().getRoot(), contaminants.contains((Integer) TaxonomyData.getTree().getRoot().getInfo()), contaminants, contaminantsAndDescendants);
+            setAllDescendentsRec(TaxonomyData.getTree().getRoot(), contaminants.contains(TaxonomyData.getTree().getRoot().getInfo()), contaminants, contaminantsAndDescendants);
     }
 
     /**
@@ -75,7 +74,7 @@ public class ContaminantManager {
      * @param allNodes
      */
     private void setAllDescendentsRec(Node v, boolean mustAddToAll, Set<Integer> internalNodes, Set<Integer> allNodes) {
-        if (!mustAddToAll && internalNodes.contains((Integer) v.getInfo()))
+        if (!mustAddToAll && internalNodes.contains(v.getInfo()))
             mustAddToAll = true;
 
         if (mustAddToAll)
@@ -111,7 +110,7 @@ public class ContaminantManager {
             }
         }
         if (contaminants.size() > 0)
-            setAllDescendentsRec(TaxonomyData.getTree().getRoot(), contaminants.contains((Integer) TaxonomyData.getTree().getRoot().getInfo()), contaminants, contaminantsAndDescendants);
+            setAllDescendentsRec(TaxonomyData.getTree().getRoot(), contaminants.contains(TaxonomyData.getTree().getRoot().getInfo()), contaminants, contaminantsAndDescendants);
     }
 
     /**
@@ -154,11 +153,6 @@ public class ContaminantManager {
      * @return iterable
      */
     public Iterable<Integer> getContaminants() {
-        return new Iterable<Integer>() {
-            @Override
-            public Iterator<Integer> iterator() {
-                return contaminants.iterator();
-            }
-        };
+        return () -> contaminants.iterator();
     }
 }

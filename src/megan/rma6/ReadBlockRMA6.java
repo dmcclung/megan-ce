@@ -19,10 +19,10 @@
 package megan.rma6;
 
 import jloda.util.Basic;
+import jloda.util.BlastMode;
 import megan.data.IMatchBlock;
 import megan.data.IReadBlock;
 import megan.io.IInputReader;
-import megan.parsers.blast.BlastMode;
 import megan.parsers.sam.SAMMatch;
 import megan.util.ReadMagnitudeParser;
 
@@ -36,7 +36,7 @@ public class ReadBlockRMA6 implements IReadBlock {
     private final BlastMode blastMode;
     private final boolean pairedReads;
 
-    private String[] cNames;
+    private final String[] cNames;
     private long uid;
     private String readHeader;
     private String readSequence;

@@ -19,14 +19,14 @@
 
 package megan.dialogs.meganize;
 
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
 import megan.core.Director;
 import megan.core.Document;
-import megan.fx.NotificationsInSwing;
 import megan.importblast.ImportBlastDialog;
 import megan.main.MeganProperties;
 

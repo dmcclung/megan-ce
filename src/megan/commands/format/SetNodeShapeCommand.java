@@ -93,7 +93,7 @@ public class SetNodeShapeCommand extends CommandBase implements ICommand {
             icons[i] = new NodeShapeIcon(NodeShape.values()[i], 12, new Color(0, 174, 238));
         }
 
-        PopupChoice<NodeShape> popupChoice = new PopupChoice<>(NodeShape.values(), null, icons, new CallBack<NodeShape>() {
+        PopupChoice<NodeShape> popupChoice = new PopupChoice<>(NodeShape.values(), null, icons, new CallBack<>() {
             @Override
             public void call(NodeShape choice) {
                 execute("set nodeShape=" + choice.toString() + ";");

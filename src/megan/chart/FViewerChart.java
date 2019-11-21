@@ -18,9 +18,9 @@
  */
 package megan.chart;
 
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import megan.chart.data.DefaultChartData;
 import megan.chart.data.IChartData;
 import megan.chart.drawers.BarChartDrawer;
@@ -94,7 +94,8 @@ public class FViewerChart extends ChartViewer {
                     java.util.Collection<String> selectedIds = getClassesList().getSelectedLabels();
                     if (selectedIds.size() > 0) {
                         if (selectedIds.size() >= 5 && JOptionPane.showConfirmDialog(getFrame(), "Do you really want to open " + selectedIds.size() +
-                                " windows in your browser?", "Confirmation - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.YES_OPTION)
+                                        " windows in your browser?", "Confirmation - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon()) != JOptionPane.YES_OPTION)
                             return;
                         for (String label : selectedIds) {
                             try {
@@ -139,7 +140,7 @@ public class FViewerChart extends ChartViewer {
             IChartData chartData = (IChartData) getChartData();
             chartData.clear();
 
-            Document doc = ((Director) dir).getDocument();
+            Document doc = dir.getDocument();
             setChartTitle(cName + " profile for " + doc.getTitle());
             int numberOfSamples = doc.getNumberOfSamples();
             if (numberOfSamples > 0) {
@@ -147,7 +148,7 @@ public class FViewerChart extends ChartViewer {
                     viewer.selectAllLeaves();
                 }
                 chartData.setAllSeries(doc.getSampleNames());
-                String[] sampleNames = doc.getSampleNames().toArray(new String[doc.getSampleNames().size()]);
+                String[] sampleNames = doc.getSampleNames().toArray(new String[0]);
 
                 java.util.Collection<Integer> ids = viewer.getSelectedIds();
                 LinkedList<String> classNames = new LinkedList<>();

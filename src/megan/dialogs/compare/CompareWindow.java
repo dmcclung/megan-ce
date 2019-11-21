@@ -22,15 +22,13 @@ import jloda.swing.commands.CommandManager;
 import jloda.swing.director.IDirector;
 import jloda.swing.director.ProjectManager;
 import jloda.swing.util.ActionJList;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import megan.core.Director;
 import megan.core.Document;
 import megan.dialogs.compare.commands.*;
 
-import javax.activation.ActivationDataFlavor;
-import javax.activation.DataHandler;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -48,9 +46,9 @@ import java.util.*;
  * Daniel Huson, 3.2007
  */
 public class CompareWindow extends JDialog {
-    final ActionJList<MyListItem> jList;
-    final DefaultListModel<MyListItem> listModel;
-    Comparer.COMPARISON_MODE mode = Comparer.COMPARISON_MODE.RELATIVE;
+    private final ActionJList<MyListItem> jList;
+    private final DefaultListModel<MyListItem> listModel;
+    private Comparer.COMPARISON_MODE mode = Comparer.COMPARISON_MODE.RELATIVE;
     private boolean ignoreNoHits;
     private boolean keep1;
 
@@ -71,7 +69,7 @@ public class CompareWindow extends JDialog {
         ignoreNoHits = ProgramProperties.get("CompareWindowIgnoreHoHits", true);
         keep1 = ProgramProperties.get("CompareWindowKeep1", false);
 
-        this.setIconImage(ProgramProperties.getProgramIcon().getImage());
+        setIconImages(ProgramProperties.getProgramIconImages());
 
         commandManager = new CommandManager(dir, this, new String[]{"megan.dialogs.compare.commands"}, !ProgramProperties.isUseGUI());
 
@@ -95,11 +93,7 @@ public class CompareWindow extends JDialog {
         if (files != null)
             loadList(files, false);
 
-        jList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                commandManager.updateEnableState();
-            }
-        });
+        jList.addListSelectionListener(listSelectionEvent -> commandManager.updateEnableState());
 
         getContentPane().setLayout(new BorderLayout());
 
@@ -300,8 +294,7 @@ public class CompareWindow extends JDialog {
                 }
             }
             first = true;
-            for (Object aSelected : selected) {
-                MyListItem item = (MyListItem) aSelected;
+            for (MyListItem item : selected) {
                 if (item.getPID() == -1) {
                     if (first) {
                         buf.append(" meganFile=");
@@ -326,11 +319,7 @@ public class CompareWindow extends JDialog {
     private static Document.ReadAssignmentMode computeMajorityReadAssignmentMode(List<MyListItem> list) {
         Map<Document.ReadAssignmentMode, Integer> mode2count = new HashMap<>();
         for (MyListItem item : list) {
-            Integer count = mode2count.get(item.getReadAssignmentMode());
-            if (count == null)
-                mode2count.put(item.getReadAssignmentMode(), 1);
-            else
-                mode2count.put(item.getReadAssignmentMode(), count + 1);
+            mode2count.merge(item.getReadAssignmentMode(), 1, Integer::sum);
         }
         Document.ReadAssignmentMode readAssignmentMode = null;
         for (Document.ReadAssignmentMode mode : mode2count.keySet()) {
@@ -354,23 +343,20 @@ public class CompareWindow extends JDialog {
                 ok = false;
         }
         if (ok) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    if (!isCanceled()) {
-                        try {
-                            MyListItem item = new MyListItem(fileName, true);
-                            int index = listModel.size();
-                            listModel.add(index, item);
-                            int[] selection = jList.getSelectedIndices();
-                            int[] newSelection = new int[selection.length + 1];
-                            System.arraycopy(selection, 0, newSelection, 0, selection.length);
-                            newSelection[selection.length] = index;
-                            jList.setSelectedIndices(newSelection);
-                            jList.repaint();
-                        } catch (Exception ex) {
-                            Basic.caught(ex);
-                        }
+            SwingUtilities.invokeLater(() -> {
+                if (!isCanceled()) {
+                    try {
+                        MyListItem item = new MyListItem(fileName, true);
+                        int index = listModel.size();
+                        listModel.add(index, item);
+                        int[] selection = jList.getSelectedIndices();
+                        int[] newSelection = new int[selection.length + 1];
+                        System.arraycopy(selection, 0, newSelection, 0, selection.length);
+                        newSelection[selection.length] = index;
+                        jList.setSelectedIndices(newSelection);
+                        jList.repaint();
+                    } catch (Exception ex) {
+                        Basic.caught(ex);
                     }
                 }
             });
@@ -393,66 +379,6 @@ public class CompareWindow extends JDialog {
         this.canceled = canceled;
     }
 
-    public class MyListItem implements Comparator {
-        private final int pid;
-        private final String name;
-        private final Document.ReadAssignmentMode readAssignmentMode;
-
-        MyListItem(Director dir) {
-            pid = dir.getID();
-            name = dir.getTitle();
-            readAssignmentMode = dir.getDocument().getReadAssignmentMode();
-        }
-
-        MyListItem(String fileName, boolean loadReadAssignmentMode) throws IOException, CanceledException {
-            pid = -1;
-            this.name = fileName;
-            if (loadReadAssignmentMode) {
-                final Document doc = new Document();
-                doc.getMeganFile().setFileFromExistingFile(fileName, true);
-                doc.loadMeganFile();
-                readAssignmentMode = doc.getReadAssignmentMode();
-            } else
-                readAssignmentMode = null;
-        }
-
-        public String toString() {
-            String str = "";
-            if (getPID() > 0) {
-                str += "[" + getPID() + "] ";
-            }
-            str += name;
-            if (readAssignmentMode != null && readAssignmentMode != Document.ReadAssignmentMode.readCount)
-                str += " [" + readAssignmentMode.toString() + "]";
-            return str;
-        }
-
-        public int getPID() {
-            return pid;
-        }
-
-        String getName() {
-            return name;
-        }
-
-        public Document.ReadAssignmentMode getReadAssignmentMode() {
-            return readAssignmentMode;
-        }
-
-        public int compare(Object o, Object o1) {
-            MyListItem one = (MyListItem) o;
-            MyListItem other = (MyListItem) o1;
-            int x = one.getName().compareTo(other.getName());
-            if (x != 0)
-                return x;
-            if (one.getPID() < other.getPID())
-                return -1;
-            else if (one.getPID() > other.getPID())
-                return 1;
-            else
-                return 0;
-        }
-    }
 }
 
 //http://docs.oracle.com/javase/tutorial/uiswing/dnd/dropmodedemo.html
@@ -461,25 +387,39 @@ class ListItemTransferHandler extends TransferHandler {
     private Object[] transferedObjects = null;
 
     public ListItemTransferHandler() {
-        localObjectFlavor = new ActivationDataFlavor(
-                Object[].class, DataFlavor.javaJVMLocalObjectMimeType, "Array of items");
+        localObjectFlavor = new DataFlavor(MyListItem[].class, "Array of items");
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected Transferable createTransferable(JComponent c) {
         JList list = (JList) c;
         indices = list.getSelectedIndices();
-        transferedObjects = list.getSelectedValues();
-        return new DataHandler(transferedObjects, localObjectFlavor.getMimeType());
+        transferedObjects = list.getSelectedValuesList().toArray();
+        return new Transferable() {
+            @Override
+            public DataFlavor[] getTransferDataFlavors() {
+                return new DataFlavor[]{localObjectFlavor};
+            }
+
+            @Override
+            public boolean isDataFlavorSupported(DataFlavor flavor) {
+                return Objects.equals(localObjectFlavor, flavor);
+            }
+
+            @Override
+            public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+                if (isDataFlavorSupported(flavor)) {
+                    return transferedObjects;
+                } else {
+                    throw new UnsupportedFlavorException(flavor);
+                }
+            }
+        };
     }
 
     @Override
     public boolean canImport(TransferSupport info) {
-        if (!info.isDrop() || !info.isDataFlavorSupported(localObjectFlavor)) {
-            return false;
-        }
-        return true;
+        return info.isDrop() && info.isDataFlavorSupported(localObjectFlavor);
     }
 
     @Override
@@ -505,16 +445,14 @@ class ListItemTransferHandler extends TransferHandler {
         try {
             Object[] values = (Object[]) info.getTransferable().getTransferData(localObjectFlavor);
             addCount = values.length;
-            for (int i = 0; i < values.length; i++) {
+            for (Object value : values) {
                 int idx = index++;
-                listModel.add(idx, values[i]);
+                listModel.add(idx, value);
                 target.addSelectionInterval(idx, idx);
             }
             return true;
-        } catch (UnsupportedFlavorException ufe) {
-            ufe.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        } catch (UnsupportedFlavorException | IOException ex) {
+            Basic.caught(ex);
         }
         return false;
     }

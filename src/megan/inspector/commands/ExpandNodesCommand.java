@@ -79,7 +79,7 @@ public class ExpandNodesCommand extends CommandBase implements ICommand {
         return "Expand";
     }
 
-    public static final String ALTNAME = "Expand Inspector";
+    private static final String ALTNAME = "Expand Inspector";
 
     public String getAltName() {
         return ALTNAME;
@@ -110,7 +110,7 @@ public class ExpandNodesCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_J, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_J, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

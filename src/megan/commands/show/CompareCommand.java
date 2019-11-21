@@ -20,12 +20,8 @@ package megan.commands.show;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.ProjectManager;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
-import jloda.util.Basic;
-import jloda.util.CanceledException;
-import jloda.util.ProgressListener;
-import jloda.util.RecursiveFileLister;
+import jloda.util.*;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
 import megan.core.Director;
@@ -89,7 +85,7 @@ public class CompareCommand extends CommandBase implements ICommand {
         try {
             if (np.peekMatchIgnoreCase("pid")) {
                 np.matchIgnoreCase("pid=");
-                while (true) {
+                do {
                     int pid = np.getInt();
                     Director newDir = (Director) ProjectManager.getProject(pid);
                     if (newDir == null)
@@ -100,14 +96,12 @@ public class CompareCommand extends CommandBase implements ICommand {
                     comparer.addDirector(newDir);
                     if (np.peekMatchIgnoreCase(",")) // for backward compatibility
                         np.matchAnyTokenIgnoreCase(",");
-                    if (np.peekMatchAnyTokenIgnoreCase("; meganFile"))
-                        break;
-                }
+                } while (!np.peekMatchAnyTokenIgnoreCase("; meganFile"));
             }
             if (np.peekMatchIgnoreCase("meganFile")) {
                 np.matchIgnoreCase("meganFile=");
-                ArrayList<String> files = new ArrayList<>();
-                while (true) {
+                final ArrayList<String> files = new ArrayList<>();
+                do {
                     String fileName = np.getWordRespectCase();
 
                     if (fileName.contains("::")) {
@@ -118,9 +112,7 @@ public class CompareCommand extends CommandBase implements ICommand {
 
                     if (np.peekMatchIgnoreCase(","))
                         np.matchAnyTokenIgnoreCase(",");   // for backward compatibility
-                    if (np.peekMatchIgnoreCase(";"))
-                        break;
-                }
+                } while (!np.peekMatchIgnoreCase(";"));
                 np.matchIgnoreCase(";");
 
                 progress.setProgress(0);
@@ -187,7 +179,7 @@ public class CompareCommand extends CommandBase implements ICommand {
             compareWindow = new CompareWindow(newDir.getMainViewer().getFrame(), newDir, null);
 
             if (!compareWindow.isCanceled()) {
-                String command = compareWindow.getCommand();
+                final String command = compareWindow.getCommand();
                 if (command != null) {
                     newDir.execute(command, newDir.getCommandManager());
                     ok = true;
@@ -215,7 +207,7 @@ public class CompareCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_M, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_M, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     public String getDescription() {
@@ -223,7 +215,7 @@ public class CompareCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/New16.gif");
+        return ResourceManager.getIcon("sun/New16.gif");
     }
 
     public boolean isCritical() {

@@ -22,16 +22,16 @@ import jloda.swing.commands.ICommand;
 import jloda.swing.director.IDirector;
 import jloda.swing.director.ProjectManager;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ProgressDialog;
 import jloda.swing.util.ResourceManager;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.ClassificationType;
 import megan.core.Director;
 import megan.core.Document;
 import megan.core.MeganFile;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.util.MeganAndRMAFileFilter;
 import megan.util.MeganizedDAAFileFilter;
@@ -52,7 +52,7 @@ import java.util.Collection;
  * Daniel Huson, 6.2010
  */
 public class OpenFileCommand extends CommandBase implements ICommand {
-    static long timeOfLastOpen = 0;
+    private static long timeOfLastOpen = 0;
 
     /**
      * constructor
@@ -100,12 +100,7 @@ public class OpenFileCommand extends CommandBase implements ICommand {
             newDir.execute(np.getQuotedTokensRespectCase(null, ";") + ";", newDir.getMainViewer().getCommandManager());
         } else {
             try {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        viewer.getFrame().toFront();
-                    }
-                });
+                SwingUtilities.invokeLater(() -> viewer.getFrame().toFront());
                 np.matchIgnoreCase("open file=");
 
                 String fileName = np.getAbsoluteFileName();
@@ -182,7 +177,7 @@ public class OpenFileCommand extends CommandBase implements ICommand {
                 if (!meganFile.isMeganSummaryFile() && meganFile.hasDataConnector())
                     MeganFile.addUIdToSetOfOpenFiles(meganFile.getName(), meganFile.getConnector().getUId());
                 if (System.currentTimeMillis() - timeOfLastOpen > 5000) {
-                    NotificationsInSwing.showInformation(String.format("Opened file '%s' with %,d reads", fileName, doc.getNumberOfReads()), 5000);
+                    NotificationsInSwing.showInformation(String.format("Opened file '%s' with %,d reads", Basic.getFileNameWithoutPath(fileName), doc.getNumberOfReads()), 5000);
                 } else
                     System.err.println(String.format("Opened file '%s' with %,d reads", fileName, doc.getNumberOfReads()));
                 timeOfLastOpen = System.currentTimeMillis();
@@ -221,7 +216,7 @@ public class OpenFileCommand extends CommandBase implements ICommand {
             getDir().notifyUnlockInput();
         }
 
-        if (files != null && files.size() > 0) {
+        if (files.size() > 0) {
             final StringBuilder buf = new StringBuilder();
             for (File file : files) {
                 if (file != null && file.exists() && file.canRead()) {
@@ -276,7 +271,7 @@ public class OpenFileCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Open16.gif");
+        return ResourceManager.getIcon("sun/Open16.gif");
     }
 
     /**
@@ -285,6 +280,6 @@ public class OpenFileCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 }

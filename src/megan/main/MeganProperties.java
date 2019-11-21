@@ -19,11 +19,10 @@
 package megan.main;
 
 import jloda.swing.export.ExportImageDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.PropertiesListListener;
 import megan.util.ReadMagnitudeParser;
-import megan.viewer.TaxonomyData;
 
 import java.awt.*;
 import java.io.File;
@@ -43,15 +42,15 @@ public class MeganProperties {
     public static final String CONTAMINANT_FILE = "ContaminantFile";
 
     public static final String MICROBIALATTRIBUTESFILE = "MicrobialAttributesFiles";
-    public static final String MAPPINGFILE = "MappingFile";
+    private static final String MAPPINGFILE = "MappingFile";
 
     public static final String TAXONOMY_SYNONYMS_FILE = "TaxonomySynonymsMapFile";
 
     public static final String PARSE_TAXON_NAMES = "UseParseTextTaxonomy";
 
-    public static final String EXPORTFILE = "ExportFile";
+    private static final String EXPORTFILE = "ExportFile";
     public static final String RECENTFILES = "RecentFiles";
-    public static final String MAXRECENTFILES = "MaxRecentFiles";
+    private static final String MAXRECENTFILES = "MaxRecentFiles";
     public static final String EXTRACT_OUTFILE_DIR = "ExtractOutFileDir";
     public static final String EXTRACT_OUTFILE_TEMPLATE = "ExtractOutFileTemplate";
 
@@ -64,7 +63,7 @@ public class MeganProperties {
     public static final String READSFILE = "ReadsFile";
     public static final String CSVFILE = "CSVFile";
     public static final String BIOMFILE = "BIOMFile";
-    public static final String BLASTOUTFILE = "BlastOutFile";
+    private static final String BLASTOUTFILE = "BlastOutFile";
 
     public static final String COMPARISON_STYLE = "CompareStyle";
 
@@ -86,21 +85,17 @@ public class MeganProperties {
     public static final String MININUM_READS_IN_ALIGNMENT = "MinReadsInAlignment";
 
     public static final String DEFAULT_TAXONOMYFILE = "ncbi.tre";
-    public static final String DEFAULT_MAPPINGFILE = "ncbi.map";
-    public static final String DEFAULT_MICROBIALATTRIBUTESFILE = "microbialattributes.map";
-
-    public static final String NUMBER_OF_THREADS = "NumberOfThreads";
-    public static final int DEFAULT_NUMBER_OF_THREADS = 8;
-
+    private static final String DEFAULT_MAPPINGFILE = "ncbi.map";
+    private static final String DEFAULT_MICROBIALATTRIBUTESFILE = "microbialattributes.map";
+    
     /**
      * sets the program properties
      *
      * @param propertiesFile
      */
     public static void initializeProperties(String propertiesFile) {
-
         ProgramProperties.setPropertiesFileName(propertiesFile);
-        ProgramProperties.setProgramIcon(ResourceManager.getIcon("megan64.gif"));
+        ProgramProperties.setProgramIcons(ResourceManager.getIcons("megan16.gif", "megan32.gif", "megan48.gif", "megan64.gif", "megan128.gif"));
 
         // first set all necessary defaults:
         ProgramProperties.put(MEGANFILE, System.getProperty("user.dir"));
@@ -140,11 +135,6 @@ public class MeganProperties {
 
         ReadMagnitudeParser.setEnabled(ProgramProperties.get("allow-read-weights", false));
         ReadMagnitudeParser.setUnderScoreEnabled(ProgramProperties.get("allow-read-weights-underscore", false));
-
-
-        for (int t : ProgramProperties.get(DISABLED_TAXA, new int[0])) {
-            TaxonomyData.getDisabledTaxa().add(t);
-        }
     }
 
     /**
@@ -192,7 +182,7 @@ public class MeganProperties {
         }
     }
 
-    static final java.util.List<PropertiesListListener> propertieslistListeners = new LinkedList<>();
+    private static final java.util.List<PropertiesListListener> propertieslistListeners = new LinkedList<>();
 
     /**
      * notify listeners that list of values for the given name has changed

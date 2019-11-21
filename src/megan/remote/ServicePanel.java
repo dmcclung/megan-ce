@@ -21,6 +21,7 @@ package megan.remote;
 import jloda.swing.director.IDirector;
 import jloda.swing.director.ProjectManager;
 import jloda.swing.find.ISearcher;
+import jloda.util.ProgramProperties;
 import megan.core.Director;
 import megan.remote.commands.*;
 
@@ -77,11 +78,7 @@ public class ServicePanel extends JPanel {
         fileTree.setCellRenderer(new MyRenderer());
         javax.swing.ToolTipManager.sharedInstance().registerComponent(fileTree);
         jTreeSearcher = new jloda.swing.find.JTreeSearcher(fileTree);
-        fileTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
-                remoteServiceBrowser.updateView(IDirector.ENABLE_STATE);
-            }
-        });
+        fileTree.addTreeSelectionListener(e -> remoteServiceBrowser.updateView(IDirector.ENABLE_STATE));
         fileTree.addTreeExpansionListener(new TreeExpansionListener() {
             @Override
             public void treeExpanded(TreeExpansionEvent event) {
@@ -166,8 +163,7 @@ public class ServicePanel extends JPanel {
         Map<String, DefaultMutableTreeNode> path2node = new HashMap<>();
         final DefaultMutableTreeNode root = new DefaultMutableTreeNode(service.getShortName(), true);
         treeModel.setRoot(root);
-        SortedSet<String> sortedSet = new TreeSet<>();
-        sortedSet.addAll(service.getAvailableFiles());
+        SortedSet<String> sortedSet = new TreeSet<>(service.getAvailableFiles());
         for (String fileName : sortedSet) {
             String[] levels = fileName.split("/");
             String path = "";
@@ -198,7 +194,7 @@ public class ServicePanel extends JPanel {
     /**
      * open all currently selected files
      */
-    public void openSelectedFiles() {
+    private void openSelectedFiles() {
         StringBuilder buf = new StringBuilder();
 
         int count = 0;
@@ -212,7 +208,8 @@ public class ServicePanel extends JPanel {
             }
         }
         if (count > 10) {
-            if (JOptionPane.showConfirmDialog(remoteServiceBrowser.getFrame(), "Do you really want to open " + count + " new files?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
+            if (JOptionPane.showConfirmDialog(remoteServiceBrowser.getFrame(), "Do you really want to open " + count + " new files?", "Confirm", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon()) == JOptionPane.NO_OPTION)
                 return;
         }
         Director dir = remoteServiceBrowser.getDir();
@@ -345,7 +342,7 @@ public class ServicePanel extends JPanel {
         }
     }
 
-    public void showPopupMenu(MouseEvent e) {
+    private void showPopupMenu(MouseEvent e) {
         int selRow = fileTree.getRowForLocation(e.getX(), e.getY());
         TreePath path = fileTree.getPathForLocation(e.getX(), e.getY());
         if (selRow != -1 && path != null) {
@@ -374,7 +371,7 @@ public class ServicePanel extends JPanel {
                         setToolTipText(service.getDescription(fileName));
                     }
                 }
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
         }

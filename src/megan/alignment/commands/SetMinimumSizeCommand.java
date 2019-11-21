@@ -20,8 +20,8 @@ package megan.alignment.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.main.MeganProperties;
 
@@ -71,7 +71,7 @@ public class SetMinimumSizeCommand extends CommandBase implements ICommand {
             execute("set minReadsAlignment=" + result + ";");
     }
 
-    public static final String NAME = "Set Minimum Number of Reads...";
+    private static final String NAME = "Set Minimum Number of Reads...";
 
     public String getName() {
         return NAME;

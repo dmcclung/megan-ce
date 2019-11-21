@@ -20,7 +20,7 @@ package megan.chart.drawers;
 
 import jloda.swing.util.BasicSwing;
 import jloda.swing.util.Geometry;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import megan.chart.IChartDrawer;
 import megan.chart.data.DefaultChartData;
 import megan.chart.gui.ChartViewer;
@@ -35,7 +35,7 @@ import java.awt.geom.Rectangle2D;
  * Daniel Huson, 5.2012
  */
 public class StackedBarChartDrawer extends BarChartDrawer implements IChartDrawer {
-    public static final String NAME = "StackedBarChart";
+    private static final String NAME = "StackedBarChart";
 
     /**
      * constructor

@@ -21,9 +21,9 @@ package megan.dialogs.meganize.commands;
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
 import jloda.swing.util.FileFilterBase;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.importblast.ImportBlastDialog;
 import megan.importblast.commands.CommandBase;
@@ -105,7 +105,7 @@ public class ChooseDAAFilesCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Open16.gif");
+        return ResourceManager.getIcon("sun/Open16.gif");
     }
 
     /**
@@ -126,7 +126,7 @@ public class ChooseDAAFilesCommand extends CommandBase implements ICommand {
         return true;
     }
 
-    public class DAAFileFilter extends FileFilterBase implements FilenameFilter {
+    public static class DAAFileFilter extends FileFilterBase implements FilenameFilter {
         /**
          * constructor
          */

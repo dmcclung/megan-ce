@@ -21,28 +21,35 @@ package megan.classification.commandtemplates;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.swing.util.TextFileFilter;
+import jloda.swing.window.NotificationsInSwing;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
+import megan.accessiondb.AccessAccessionMappingDatabase;
 import megan.classification.ClassificationManager;
 import megan.classification.IdMapper;
-import megan.fx.NotificationsInSwing;
 import megan.importblast.ImportBlastDialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * loads a mapping file for the given fViewer and mapType
  * Daniel Huson, 3.2014
  */
 public class LoadMappingFile4ViewerCommand extends CommandBase implements ICommand {
+    private final Collection<String> cNames;
     final private String cName;
     final private IdMapper.MapType mapType;
 
-    public LoadMappingFile4ViewerCommand(String cName, IdMapper.MapType mapType) {
+    public LoadMappingFile4ViewerCommand(Collection<String> cNames,String cName, IdMapper.MapType mapType) {
+        this.cNames=cNames;
         this.cName = cName;
         this.mapType = mapType;
     }
@@ -76,15 +83,41 @@ public class LoadMappingFile4ViewerCommand extends CommandBase implements IComma
         final File lastOpenFile = ProgramProperties.getFile(ClassificationManager.getMapFileKey(cName, mapType));
         getDir().notifyLockInput();
         ImportBlastDialog dialog = (ImportBlastDialog) getParent();
-        final String[] suffixes = (mapType == IdMapper.MapType.Accession ? new String[]{"map", "abin", "map.gz"} : new String[]{"map", "bin", "map.gz"});
-        final File file = ChooseFileDialog.chooseFileToOpen(dialog, lastOpenFile, new TextFileFilter(suffixes, false),
-                new TextFileFilter(suffixes, true), ev, "Open " + mapType + " File");
+        final ArrayList<String> suffixes = new ArrayList<>(Arrays.asList("map", "map.gz"));
+        if (mapType == IdMapper.MapType.Accession) {
+            suffixes.add("abin");
+        } else if(mapType== IdMapper.MapType.MeganMapDB) {
+            suffixes.add("db");
+        }
+
+        final File file = ChooseFileDialog.chooseFileToOpen(dialog, lastOpenFile, new TextFileFilter(suffixes.toArray(new String[0]), false),
+                new TextFileFilter(suffixes.toArray(new String[0]), true), ev, "Open " + mapType + " File");
         getDir().notifyUnlockInput();
 
         if (file != null) {
             if (file.exists() && file.canRead()) {
-                ProgramProperties.put(ClassificationManager.getMapFileKey(cName, mapType), file);
-                execute("load mapFile='" + file.getPath() + "' mapType=" + mapType + " cName=" + cName + ";");
+                if(mapType!= IdMapper.MapType.MeganMapDB) {
+                    ProgramProperties.put(ClassificationManager.getMapFileKey(cName, mapType), file);
+                    execute("load mapFile='" + file.getPath() + "' mapType=" + mapType + " cName=" + cName + ";");
+                }
+                else {
+                    try {
+                        ClassificationManager.setMeganMapDBFile(file.toString());
+                        ClassificationManager.setUseFastAccessionMappingMode(true);
+                    } catch (IOException e) {
+                        NotificationsInSwing.showError("Load MEGAN mapping db failed: "+e.getMessage());
+                        return;
+                    }
+                    final Collection<String> supportedClassifications= AccessAccessionMappingDatabase.getContainedClassificationsIfDBExists(file.getPath());
+                    for(String name:cNames) {
+                        if(supportedClassifications.contains(name)) {
+                            ProgramProperties.put(ClassificationManager.getMapFileKey(name, mapType), file);
+                            executeImmediately("load mapFile='" + file.getPath() + "' mapType=" + mapType + " cName=" + name + ";");
+                        }
+                        executeImmediately("use cViewer=" + name + " state=" + supportedClassifications.contains(name) + ";");
+                    }
+                    execute("update;");
+                }
             } else
                 NotificationsInSwing.showError(getViewer().getFrame(), "Failed to open file: " + file.getPath());
         }
@@ -105,7 +138,7 @@ public class LoadMappingFile4ViewerCommand extends CommandBase implements IComma
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Open16.gif");
+        return ResourceManager.getIcon("sun/Open16.gif");
     }
 
     /**
@@ -114,7 +147,7 @@ public class LoadMappingFile4ViewerCommand extends CommandBase implements IComma
      * @return true, if command can be applied
      */
     public boolean isApplicable() {
-        return true;
+        return !ClassificationManager.isUseFastAccessionMappingMode()|| mapType== IdMapper.MapType.MeganMapDB;
     }
 
     /**
@@ -153,6 +186,9 @@ public class LoadMappingFile4ViewerCommand extends CommandBase implements IComma
      * @return description
      */
     public String getDescription() {
-        return "Load a file that maps " + mapType + " ids to " + cName + " ids";
+        if(mapType== IdMapper.MapType.MeganMapDB)
+            return "Load a MEGAN mapping DB file to map to "+cName+" ids";
+        else
+            return "Load a file that maps " + mapType + " ids to " + cName + " ids";
     }
 }

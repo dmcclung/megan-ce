@@ -20,11 +20,12 @@ package megan.commands;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.ProjectManager;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import jloda.util.Single;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
@@ -34,7 +35,6 @@ import megan.core.Director;
 import megan.core.Document;
 import megan.core.MeganFile;
 import megan.data.ExtractToNewDocument;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.rma6.ExtractToNewDocumentRMA6;
 import megan.util.RMAFileFilter;
@@ -224,7 +224,7 @@ public class ExtractToNewDocumentCommand extends CommandBase implements ICommand
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public String getDescription() {

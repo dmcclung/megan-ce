@@ -20,8 +20,8 @@ package megan.classification.commandtemplates;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICheckBoxCommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 
 import javax.swing.*;
@@ -71,7 +71,7 @@ public class SetAnalyse4ViewerCommand extends CommandBase implements ICheckBoxCo
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

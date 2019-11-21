@@ -72,7 +72,7 @@ public class LayoutCommand extends CommandBase implements ICommand {
 
     }
 
-    public static final String NAME = "Layout";
+    private static final String NAME = "Layout";
 
     public String getName() {
         return NAME;

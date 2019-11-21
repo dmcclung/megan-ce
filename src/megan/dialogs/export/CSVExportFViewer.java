@@ -22,12 +22,12 @@ import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.graph.NodeSet;
 import jloda.util.Basic;
+import jloda.util.BlastMode;
 import jloda.util.CanceledException;
 import jloda.util.ProgressListener;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
 import megan.data.*;
-import megan.parsers.blast.BlastMode;
 import megan.viewer.ViewerBase;
 
 import java.io.BufferedWriter;
@@ -509,7 +509,7 @@ public class CSVExportFViewer {
             else
                 v = null;
         }
-        final String[] array = path.toArray(new String[path.size()]);
+        final String[] array = path.toArray(new String[0]);
         final StringBuilder buf = new StringBuilder();
         for (int i = array.length - 1; i >= 0; i--) {
             if (array[i] != null)

@@ -20,14 +20,14 @@ package megan.commands.additional;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.algorithms.ComputeCoreBiome;
 import megan.core.*;
 import megan.dialogs.compare.Comparer;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.viewer.gui.NodeDrawer;
 
@@ -86,7 +86,7 @@ public class CompareByAttributeCommand extends CommandBase implements ICommand {
                     final String tarSample = (attribute.equals(SampleAttributeTable.SAMPLE_ID) ? value : attribute + ":" + value);
                     if (tarSample2SrcSamples.get(tarSample) == null) {
                         tarSamples.add(tarSample);
-                        tarSample2SrcSamples.put(tarSample, new ArrayList<String>());
+                        tarSample2SrcSamples.put(tarSample, new ArrayList<>());
                     }
                     tarSample2SrcSamples.get(tarSample).add(sample);
                     tarSample2Value.put(tarSample, value);

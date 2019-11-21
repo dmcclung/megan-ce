@@ -20,7 +20,7 @@ package megan.chart.drawers;
 
 import jloda.swing.util.BasicSwing;
 import jloda.swing.util.Geometry;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import megan.chart.IChartDrawer;
 import megan.chart.data.DefaultChartData;
 import megan.chart.data.IChartData;
@@ -30,6 +30,7 @@ import megan.chart.gui.SelectionGraphics;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 
 /**
  * draws a bar chart
@@ -37,8 +38,8 @@ import java.awt.geom.Rectangle2D;
  */
 public class BarChartDrawer extends ChartDrawerBase implements IChartDrawer {
     public static final String NAME = "BarChart";
-    protected Double maxDisplayedYValue = null;
-    protected Rectangle lastDown = null;
+    private Double maxDisplayedYValue = null;
+    final Rectangle lastDown = null;
 
     private boolean showVerticalGridLines = true;
     private boolean gapBetweenBars = true;
@@ -188,7 +189,7 @@ public class BarChartDrawer extends ChartDrawerBase implements IChartDrawer {
                 percentFactor = computePercentFactorPerSampleForTransposedChart((DefaultChartData) getChartData(), seriesIncludingDisabled);
                 topY = computeMaxClassValueUsingPercentFactorPerSeries((DefaultChartData) getChartData(), seriesIncludingDisabled, percentFactor);
                 if (transposedHeightsAdditive && seriesIncludingDisabled.length > 0) {
-                    topY /= (double) seriesIncludingDisabled.length;
+                    topY /= seriesIncludingDisabled.length;
                 }
             } else
                 topY = 101;
@@ -364,7 +365,7 @@ public class BarChartDrawer extends ChartDrawerBase implements IChartDrawer {
      *
      * @param gc
      */
-    protected void drawYAxisSqrt(Graphics2D gc, Dimension size) {
+    private void drawYAxisSqrt(Graphics2D gc, Dimension size) {
         gc.setFont(getFont(ChartViewer.FontKeys.YAxisFont.toString()));
 
         int x0 = leftMargin;
@@ -688,7 +689,7 @@ public class BarChartDrawer extends ChartDrawerBase implements IChartDrawer {
                 double value = getChartData().getValueAsDouble(seriesName, className);
                 switch (scalingType) { // modify if not linear scale:
                     case PERCENT: {
-                        value *= percentFactor[i];
+                        value *= Objects.requireNonNull(percentFactor)[i];
                         break;
                     }
                     case LOG: {

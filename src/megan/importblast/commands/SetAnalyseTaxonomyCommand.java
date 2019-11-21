@@ -44,7 +44,7 @@ public class SetAnalyseTaxonomyCommand extends CommandBase implements ICheckBoxC
         return false;
     }
 
-    final public static String NAME = "Analyse taxonomic content";
+    private final static String NAME = "Analyse taxonomic content";
 
     public String getName() {
         return NAME;
@@ -55,7 +55,7 @@ public class SetAnalyseTaxonomyCommand extends CommandBase implements ICheckBoxC
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

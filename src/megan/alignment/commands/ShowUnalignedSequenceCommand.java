@@ -76,7 +76,7 @@ public class ShowUnalignedSequenceCommand extends CommandBase implements ICheckB
         execute("set show-unaligned=" + !isSelected() + ";");
     }
 
-    public static final String NAME = "Show Unaligned";
+    private static final String NAME = "Show Unaligned";
 
     public String getName() {
         return NAME;

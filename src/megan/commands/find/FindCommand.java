@@ -21,9 +21,9 @@ package megan.commands.find;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICheckBoxCommand;
 import jloda.swing.director.IViewerWithFindToolBar;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,7 +64,7 @@ public class FindCommand extends CommandBase implements ICheckBoxCommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Find16.gif");
+        return ResourceManager.getIcon("sun/Find16.gif");
     }
 
     /**
@@ -73,7 +73,7 @@ public class FindCommand extends CommandBase implements ICheckBoxCommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

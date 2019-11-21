@@ -18,7 +18,7 @@
  */
 package megan.clusteranalysis.commands;
 
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.clusteranalysis.ClusterViewer;
 import megan.clusteranalysis.indices.DistancesManager;
@@ -30,7 +30,7 @@ import java.awt.event.ActionEvent;
  * the ecological index
  * Daniel Huson, 6.2010
  */
-public abstract class EcologicalIndexCommand extends CommandBase {
+abstract class EcologicalIndexCommand extends CommandBase {
     /**
      * parses the given command and executes it
      *

@@ -49,7 +49,7 @@ public class ClearSetColorsCommand extends CommandBase implements ICommand {
         return ((Director) getDir()).getDocument().getChartColorManager().hasChangedColors();
     }
 
-    public static String NAME = "Clear Set Colors";
+    private static final String NAME = "Clear Set Colors";
 
     public String getName() {
         return NAME;

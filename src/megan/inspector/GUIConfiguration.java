@@ -18,15 +18,14 @@
  */
 package megan.inspector;
 
-import jloda.swing.util.MenuConfiguration;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.MenuConfiguration;
 import megan.classification.data.ClassificationCommandHelper;
 
 /**
  * configuration for menu and toolbar
  * Daniel Huson, 7.2010
  */
-public class GUIConfiguration {
+class GUIConfiguration {
 
     /**
      * get the menu configuration
@@ -48,7 +47,7 @@ public class GUIConfiguration {
         menuConfig.defineMenu("Window", "Close All Other Windows...;|;Reset Window Location;Set Window Size...;|;Message Window...;|;" +
                 "Inspector Window...;|;Main Viewer...;" + ClassificationCommandHelper.getOpenViewerMenuString() + "|;Samples Viewer...;|;");
 
-        menuConfig.defineMenu("Help", "About...;How to Cite...;|;Community Website...;Reference Manual...;" + ProgramProperties.getIfEnabled("usingInstall4j", "|;Check For Updates...;"));
+        menuConfig.defineMenu("Help", "About...;How to Cite...;|;Community Website...;Reference Manual...;|;Check For Updates...;");
 
         return menuConfig;
     }

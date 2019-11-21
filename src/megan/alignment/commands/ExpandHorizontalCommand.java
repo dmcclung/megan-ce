@@ -63,7 +63,7 @@ public class ExpandHorizontalCommand extends CommandBase implements ICommand {
         executeImmediately("expand axis=horizontal what=in;");
     }
 
-    public static final String NAME = "Expand Horizontal";
+    private static final String NAME = "Expand Horizontal";
 
     public String getName() {
         return NAME;
@@ -97,7 +97,7 @@ public class ExpandHorizontalCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_2, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_2, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

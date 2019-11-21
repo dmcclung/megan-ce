@@ -23,9 +23,9 @@ import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.phylo.PhyloTree;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.IdMapper;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.MainViewer;
 import megan.viewer.TaxonomicLevels;
 import megan.viewer.TaxonomyData;
@@ -138,20 +138,13 @@ public class ListAssignmentsToLevelsCommand extends CommandBase implements IComm
         } else // a true node in the taxonomy
         {
             final Float count = level2count.get(level);
-            if (count == null)
-                level2count.put(level, ((NodeData) v.getData()).getCountAssigned());
-            else
-                level2count.put(level, count + ((NodeData) v.getData()).getCountAssigned());
+            level2count.merge(level, ((NodeData) v.getData()).getCountAssigned(), Float::sum);
 
             final int taxLevel = TaxonomyData.getTaxonomicRank(taxonId);
             if (taxLevel != 0) {
                 String rank = TaxonomicLevels.getName(taxLevel);
                 if (rank != null) {
-                    final Float rankCount = rank2count.get(rank);
-                    if (rankCount == null)
-                        rank2count.put(rank, ((NodeData) v.getData()).getCountAssigned());
-                    else
-                        rank2count.put(rank, rankCount + ((NodeData) v.getData()).getCountAssigned());
+                    rank2count.merge(rank, ((NodeData) v.getData()).getCountAssigned(), Float::sum);
                 }
             }
 

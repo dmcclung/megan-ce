@@ -20,9 +20,9 @@ package megan.commands.export;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
 import megan.core.Director;
@@ -41,7 +41,6 @@ public class ExportSummaryCommand extends CommandBase implements ICommand {
     public void apply(NexusStreamParser np) throws Exception {
 // no need to implement, never called
     }
-
 
     public void actionPerformed(ActionEvent event) {
         Director dir = getDir();
@@ -75,7 +74,7 @@ public class ExportSummaryCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public String getDescription() {

@@ -18,11 +18,12 @@
  */
 package megan.commands.additional;
 
+import jloda.fx.util.ProgramExecutorService;
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
 import jloda.swing.util.FastaFileFilter;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.*;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentViewer;
@@ -36,9 +37,6 @@ import megan.core.Director;
 import megan.core.Document;
 import megan.data.IReadBlockIterator;
 import megan.data.ReadBlockIteratorMaxCount;
-import megan.fx.NotificationsInSwing;
-import megan.main.MeganProperties;
-import megan.parsers.blast.BlastMode;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.ViewerBase;
 
@@ -160,7 +158,7 @@ public class ExportGeneCentricAssemblyCommand extends CommandBase implements ICo
             System.err.println(String.format("Number of contigs:%6d", count));
 
             if (doOverlapContigs) {
-                final int numberOfThreads = Math.max(1, Math.min(ProgramProperties.get(MeganProperties.NUMBER_OF_THREADS, MeganProperties.DEFAULT_NUMBER_OF_THREADS), Runtime.getRuntime().availableProcessors() - 1));
+                final int numberOfThreads =ProgramExecutorService.getNumberOfCoresToUse();
                 count = ReadAssembler.mergeOverlappingContigs(numberOfThreads, progress, maxPercentIdentity, minContigOverlap, alignmentAssembler.getContigs(), true);
                 System.err.println(String.format("Remaining contigs:%6d", count));
             }
@@ -172,7 +170,7 @@ public class ExportGeneCentricAssemblyCommand extends CommandBase implements ICo
             }
             if (ProgramProperties.isUseGUI()) {
                 if (JOptionPane.showConfirmDialog(null, "BLAST contigs on NCBI?", "Remote BLAST - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
-                    final String commandString = RemoteBlastDialog.apply(getViewer(), (Director) getDir(), null, outputFile, "contig");
+                    final String commandString = RemoteBlastDialog.apply(getViewer(), getDir(), null, outputFile, "contig");
                     if (commandString != null) {
                         final Director newDir = Director.newProject();
                         newDir.getMainViewer().getFrame().setVisible(true);
@@ -198,35 +196,39 @@ public class ExportGeneCentricAssemblyCommand extends CommandBase implements ICo
 
                     System.err.println(String.format("Number of contigs:%6d", count));
 
-                    if (doOverlapContigs) {
-                        final int numberOfThreads = Math.max(1, Math.min(ProgramProperties.get(MeganProperties.NUMBER_OF_THREADS, MeganProperties.DEFAULT_NUMBER_OF_THREADS), Runtime.getRuntime().availableProcessors() - 1));
-                        count = ReadAssembler.mergeOverlappingContigs(numberOfThreads, progress, maxPercentIdentity, minContigOverlap, readAssembler.getContigs(), true);
-                        System.err.println(String.format("Remaining contigs:%6d", count));
-                    }
-
-                    if (ProgramProperties.get("verbose-assembly", false)) {
-                        for (Pair<String, String> contig : readAssembler.getContigs()) {
-                            System.err.println(contig.getFirst());
+                    if (count == 0) {
+                        message = "Could not assemble reads, 0 contigs created.";
+                    } else {
+                        if (doOverlapContigs) {
+                            final int numberOfThreads = ProgramExecutorService.getNumberOfCoresToUse();
+                            count = ReadAssembler.mergeOverlappingContigs(numberOfThreads, progress, maxPercentIdentity, minContigOverlap, readAssembler.getContigs(), true);
+                            System.err.println(String.format("Remaining contigs:%6d", count));
                         }
-                    }
 
-                    try (Writer w = new BufferedWriter(new FileWriter(outputFile))) {
-                        readAssembler.writeContigs(w, progress);
-                        System.err.println("Contigs written to: " + outputFile);
-                        readAssembler.reportContigStats();
-                        message += "Wrote " + count + " contigs\n";
-                    }
-                    if (showGraph)
-                        readAssembler.showOverlapGraph(dir, progress);
+                        if (ProgramProperties.get("verbose-assembly", false)) {
+                            for (Pair<String, String> contig : readAssembler.getContigs()) {
+                                System.err.println(contig.getFirst());
+                            }
+                        }
 
-                    if (ProgramProperties.isUseGUI()) {
-                        if (JOptionPane.showConfirmDialog(null, "BLAST contigs on NCBI?", "Remote BLAST - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
-                            final String commandString = RemoteBlastDialog.apply(getViewer(), (Director) getDir(), null, outputFile, "contig");
-                            if (commandString != null) {
-                                final Director newDir = Director.newProject();
-                                newDir.getMainViewer().setDoReInduce(true);
-                                newDir.getMainViewer().setDoReset(true);
-                                newDir.executeImmediately(commandString, newDir.getMainViewer().getCommandManager());
+                        try (Writer w = new BufferedWriter(new FileWriter(outputFile))) {
+                            readAssembler.writeContigs(w, progress);
+                            System.err.println("Contigs written to: " + outputFile);
+                            readAssembler.reportContigStats();
+                            message += "Wrote " + count + " contigs\n";
+                        }
+                        if (showGraph)
+                            readAssembler.showOverlapGraph(dir, progress);
+
+                        if (ProgramProperties.isUseGUI()) {
+                            if (JOptionPane.showConfirmDialog(null, "BLAST contigs on NCBI?", "Remote BLAST - MEGAN", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
+                                final String commandString = RemoteBlastDialog.apply(getViewer(), getDir(), null, outputFile, "contig");
+                                if (commandString != null) {
+                                    final Director newDir = Director.newProject();
+                                    newDir.getMainViewer().setDoReInduce(true);
+                                    newDir.getMainViewer().setDoReset(true);
+                                    newDir.executeImmediately(commandString, newDir.getMainViewer().getCommandManager());
+                                }
                             }
                         }
                     }
@@ -279,8 +281,7 @@ public class ExportGeneCentricAssemblyCommand extends CommandBase implements ICo
             addOn = Basic.toCleanName(((AlignmentViewer) getViewer()).getAlignment().getName()).replaceAll("[_]+", "_");
         } else if (getViewer() instanceof ViewerBase) {
             addOn = getViewer().getClassName().toLowerCase();
-            final Set<String> labels = new HashSet<>();
-            labels.addAll(((ViewerBase) getViewer()).getSelectedNodeLabels(false));
+            final Set<String> labels = new HashSet<>(((ViewerBase) getViewer()).getSelectedNodeLabels(false));
             if (labels.size() == 1)
                 addOn += "-" + Basic.toCleanName(labels.iterator().next()).replaceAll("[_]+", "_");
         }
@@ -494,7 +495,7 @@ public class ExportGeneCentricAssemblyCommand extends CommandBase implements ICo
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public boolean isCritical() {

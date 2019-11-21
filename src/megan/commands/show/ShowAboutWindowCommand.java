@@ -19,7 +19,7 @@
 package megan.commands.show;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.About;
+import jloda.swing.window.About;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
@@ -54,7 +54,7 @@ public class ShowAboutWindowCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/About16.gif");
+        return ResourceManager.getIcon("sun/About16.gif");
     }
 
     public boolean isCritical() {

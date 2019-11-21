@@ -18,8 +18,7 @@
  */
 package megan.timeseriesviewer;
 
-import jloda.swing.util.MenuConfiguration;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.MenuConfiguration;
 import megan.chart.data.ChartCommandHelper;
 import megan.classification.data.ClassificationCommandHelper;
 
@@ -27,7 +26,7 @@ import megan.classification.data.ClassificationCommandHelper;
  * configuration for menu and toolbar
  * Daniel Huson, 7.2010
  */
-public class GUIConfiguration {
+class GUIConfiguration {
 
     /**
      * get the menu configuration
@@ -50,7 +49,7 @@ public class GUIConfiguration {
                 "Inspector Window...;|;Main Viewer...;" + ClassificationCommandHelper.getOpenViewerMenuString() + "|;Sample Viewers...;|;" +
                 ChartCommandHelper.getOpenChartMenuString() + "|;Chart Microbial Attributes...;|;");
 
-        menuConfig.defineMenu("Help", "About...;How to Cite...;|;Community Website...;Reference Manual...;" + ProgramProperties.getIfEnabled("usingInstall4j", "|;Check For Updates...;"));
+        menuConfig.defineMenu("Help", "About...;How to Cite...;|;Community Website...;Reference Manual...;|;Check For Updates...;");
         return menuConfig;
     }
 

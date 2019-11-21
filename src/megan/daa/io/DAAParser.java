@@ -25,7 +25,6 @@ import jloda.util.interval.Interval;
 import jloda.util.interval.IntervalTree;
 import megan.io.FileInputStreamAdapter;
 import megan.io.FileRandomAccessReadOnlyAdapter;
-import megan.parsers.blast.BlastMode;
 import megan.parsers.blast.PostProcessMatches;
 
 import java.io.IOException;
@@ -45,14 +44,14 @@ public class DAAParser {
     private final byte[] sourceAlphabet;
     private final byte[] alignmentAlphabet;
 
-    private BlastMode blastMode;
+    private final jloda.util.BlastMode blastMode;
 
     // blocking queue sentinel:
     public final static Pair<byte[], byte[]> SENTINEL_SAM_ALIGNMENTS = new Pair<>(null, null);
     public final static Pair<DAAQueryRecord, DAAMatchRecord[]> SENTINEL_QUERY_MATCH_BLOCKS = new Pair<>();
 
-    final IntervalTree<DAAMatchRecord> intervalTree = new IntervalTree<>(); // used in parsing of long reads
-    final ArrayList<DAAMatchRecord> list = new ArrayList<>();
+    private final IntervalTree<DAAMatchRecord> intervalTree = new IntervalTree<>(); // used in parsing of long reads
+    private final ArrayList<DAAMatchRecord> list = new ArrayList<>();
 
     /**
      * constructor
@@ -119,17 +118,17 @@ public class DAAParser {
      *
      * @return blast mode
      */
-    public BlastMode getBlastMode() {
+    public jloda.util.BlastMode getBlastMode() {
         return blastMode;
     }
 
-    public static BlastMode getBlastMode(String fileName) {
+    public static jloda.util.BlastMode getBlastMode(String fileName) {
         try {
             DAAParser daaParser = new DAAParser(fileName);
             return daaParser.getBlastMode();
         } catch (IOException e) {
             Basic.caught(e);
-            return BlastMode.Unknown;
+            return jloda.util.BlastMode.Unknown;
         }
     }
 
@@ -273,11 +272,16 @@ public class DAAParser {
 
                 while (inputBuffer.getPosition() < inputBuffer.size()) {
                     DAAMatchRecord matchRecord = new DAAMatchRecord(queryRecord);
-                    matchRecord.parseBuffer(inputBuffer, refIns);
-                    if (numberOfMatches < maxMatchesPerRead)
-                        matchRecords[numberOfMatches++] = matchRecord;
-                    else
-                        break;
+                    try {
+                        matchRecord.parseBuffer(inputBuffer, refIns);
+                        if (numberOfMatches < maxMatchesPerRead)
+                            matchRecords[numberOfMatches++] = matchRecord;
+                        else
+                            break;
+                    }
+                    catch(Exception ex) {
+                        Basic.caught(ex);
+                    }
                 }
             } else {
                 intervalTree.clear();

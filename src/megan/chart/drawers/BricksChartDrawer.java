@@ -20,7 +20,7 @@ package megan.chart.drawers;
 
 import jloda.swing.util.BasicSwing;
 import jloda.swing.util.Geometry;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import megan.chart.IChartDrawer;
 import megan.chart.gui.ChartViewer;
 import megan.chart.gui.SelectionGraphics;
@@ -34,7 +34,7 @@ import java.awt.geom.Rectangle2D;
  * Daniel Huson, 3.2013
  */
 public class BricksChartDrawer extends BubbleChartDrawer implements IChartDrawer {
-    public static final String NAME = "BricksChart";
+    private static final String NAME = "BricksChart";
 
     /**
      * constructor

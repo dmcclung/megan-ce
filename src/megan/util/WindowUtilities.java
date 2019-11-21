@@ -33,12 +33,9 @@ public class WindowUtilities {
      */
     public static void toFront(final Window window) {
         if (window != null) {
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    window.setVisible(true);
-                    window.toFront();
-                }
+            Runnable runnable = () -> {
+                window.setVisible(true);
+                window.toFront();
             };
             if (SwingUtilities.isEventDispatchThread())
                 runnable.run();
@@ -57,14 +54,11 @@ public class WindowUtilities {
         //    System.err.println("HellO!");
 
         if (frame != null) {
-            final Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    frame.setVisible(true);
-                    frame.setState(JFrame.NORMAL);
-                    frame.toFront();
-                    frame.requestFocus();
-                }
+            final Runnable runnable = () -> {
+                frame.setVisible(true);
+                frame.setState(JFrame.NORMAL);
+                frame.toFront();
+                frame.requestFocus();
             };
             if (SwingUtilities.isEventDispatchThread())
                 runnable.run();

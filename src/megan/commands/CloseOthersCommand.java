@@ -44,7 +44,7 @@ public class CloseOthersCommand extends CommandBase implements ICommand {
         return NAME;
     }
 
-    public static final String NAME = "Close All Other Windows...";
+    private static final String NAME = "Close All Other Windows...";
 
     /**
      * get description to be used as a tooltip
@@ -70,7 +70,7 @@ public class CloseOthersCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | InputEvent.SHIFT_MASK);
+        return KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | InputEvent.SHIFT_DOWN_MASK);
     }
 
     /**

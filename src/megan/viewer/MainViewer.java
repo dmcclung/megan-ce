@@ -23,9 +23,10 @@ import jloda.swing.commands.CommandManager;
 import jloda.swing.director.*;
 import jloda.swing.util.ListTransferHandler;
 import jloda.swing.util.PopupMenu;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.BlastMode;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import megan.chart.ChartColorManager;
 import megan.chart.gui.LabelsJList;
 import megan.chart.gui.SyncListener;
@@ -38,7 +39,6 @@ import megan.core.Director;
 import megan.core.SelectionSet;
 import megan.dialogs.compare.Comparer;
 import megan.main.MeganProperties;
-import megan.parsers.blast.BlastMode;
 import megan.viewer.gui.NodeDrawer;
 
 import javax.swing.*;
@@ -81,51 +81,45 @@ public class MainViewer extends ClassificationViewer implements IDirectableViewe
         }
         ProgramProperties.checkState();
 
-        SyncListener syncListener1 = new SyncListener() {
-            public void syncList2Viewer(LinkedList<String> enabledNames) { // rescan enable state
-                if (doc.getDataTable().setEnabledSamples(enabledNames)) {
-                    dir.execute("update reInduce=true;", commandManager);
-                }
+        SyncListener syncListener1 = enabledNames -> { // rescan enable state
+            if (doc.getDataTable().setEnabledSamples(enabledNames)) {
+                dir.execute("update reInduce=true;", commandManager);
             }
         };
 
         seriesList = new LabelsJList(this, syncListener1, new PopupMenu(this, megan.viewer.GUIConfiguration.getSeriesListPopupConfiguration(), commandManager));
 
-        seriesList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                if (!seriesList.inSelection) {
-                    seriesList.inSelection = true;
-                    try {
-                        // select series in window
-                        Set<String> selected = new HashSet<>();
-                        selected.addAll(seriesList.getSelectedLabels());
-                        selectedSeries.clear();
-                        selectedSeries.setSelected(selected, true);
-                    } finally {
-                        seriesList.inSelection = false;
-                    }
+        seriesList.addListSelectionListener(listSelectionEvent -> {
+            if (!seriesList.inSelection) {
+                seriesList.inSelection = true;
+                try {
+                    // select series in window
+                    Set<String> selected = new HashSet<>();
+                    selected.addAll(seriesList.getSelectedLabels());
+                    selectedSeries.clear();
+                    selectedSeries.setSelected(selected, true);
+                } finally {
+                    seriesList.inSelection = false;
                 }
             }
         });
         seriesList.setDragEnabled(true);
         seriesList.setTransferHandler(new ListTransferHandler());
 
-        selectedSeries.addSampleSelectionListener(new SelectionSet.SelectionListener() {
-            public void changed(Collection<String> labels, boolean selected) {
-                if (!seriesList.inSelection) {
-                    seriesList.inSelection = true;
-                    try {
-                        DefaultListModel model = (DefaultListModel) seriesList.getModel();
-                        for (int i = 0; i < model.getSize(); i++) {
-                            String name = seriesList.getModel().getElementAt(i);
-                            if (selectedSeries.isSelected(name))
-                                seriesList.addSelectionInterval(i, i + 1);
-                            else
-                                seriesList.removeSelectionInterval(i, i + 1);
-                        }
-                    } finally {
-                        seriesList.inSelection = false;
+        selectedSeries.addSampleSelectionListener((labels, selected) -> {
+            if (!seriesList.inSelection) {
+                seriesList.inSelection = true;
+                try {
+                    DefaultListModel model = (DefaultListModel) seriesList.getModel();
+                    for (int i = 0; i < model.getSize(); i++) {
+                        String name = seriesList.getModel().getElementAt(i);
+                        if (selectedSeries.isSelected(name))
+                            seriesList.addSelectionInterval(i, i + 1);
+                        else
+                            seriesList.removeSelectionInterval(i, i + 1);
                     }
+                } finally {
+                    seriesList.inSelection = false;
                 }
             }
         });
@@ -270,7 +264,8 @@ public class MainViewer extends ClassificationViewer implements IDirectableViewe
                 try {
                     int result = JOptionPane.showConfirmDialog(getFrame(), "Document has been modified, save before " +
                                     (ProjectManager.isQuitting() ? "quitting?" : "closing?"), ProgramProperties.getProgramName() + " - Save Changes?",
-                            JOptionPane.YES_NO_CANCEL_OPTION);
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon());
 
                     if (result == JOptionPane.YES_OPTION) {
                         Boolean[] canceled = new Boolean[]{false};
@@ -296,7 +291,9 @@ public class MainViewer extends ClassificationViewer implements IDirectableViewe
     private boolean confirmQuit() throws CanceledException {
         if (ProgramProperties.isUseGUI()) {
             getFrame().toFront();
-            int result = JOptionPane.showConfirmDialog(getLastActiveFrame(), "Quit " + ProgramProperties.getProgramName() + "?", ProgramProperties.getProgramVersion() + " - Quit?", JOptionPane.YES_NO_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog(getLastActiveFrame(), "Quit " + ProgramProperties.getProgramName() + "?",
+                    ProgramProperties.getProgramVersion() + " - Quit?", JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon());
             if (result == JOptionPane.CANCEL_OPTION) {
                 throw new CanceledException();
             } else return result != JOptionPane.NO_OPTION;

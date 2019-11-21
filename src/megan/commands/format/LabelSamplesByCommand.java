@@ -22,8 +22,8 @@ import javafx.application.Platform;
 import javafx.scene.control.ChoiceDialog;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.core.Document;
@@ -39,20 +39,27 @@ import java.util.Optional;
  */
 public class LabelSamplesByCommand extends CommandBase implements ICommand {
     public String getSyntax() {
-        return "labelBy attribute=<name>;";
+        return "labelBy attribute=<name> [samples={selected|all}];";
     }
 
     public void apply(NexusStreamParser np) throws Exception {
         np.matchIgnoreCase("labelBy attribute=");
-        String attribute = np.getWordRespectCase();
-        Document doc = ((Director) getDir()).getDocument();
+        final String attribute = np.getWordRespectCase();
+        final boolean selected;
+        if (np.peekMatchIgnoreCase("samples")) {
+            np.matchIgnoreCase("samples=");
+            selected = np.getWordMatchesIgnoringCase("selected all").equalsIgnoreCase("selected");
+        } else
+            selected = true;
+        np.matchIgnoreCase(";");
+
+        final Document doc = ((Director) getDir()).getDocument();
 
         java.util.Collection<String> samples;
-        if (getViewer() instanceof SamplesViewer) {
-            samples = ((SamplesViewer) getViewer()).getSamplesTable().getSelectedSamples();
+        if (selected && getViewer() instanceof SamplesViewer) {
+            samples = ((SamplesViewer) getViewer()).getSamplesTableView().getSelectedSamples();
         } else
             samples = doc.getSampleAttributeTable().getSampleSet();
-
 
         ProgramProperties.put("SetByAttribute", attribute);
 
@@ -71,34 +78,26 @@ public class LabelSamplesByCommand extends CommandBase implements ICommand {
 
         if (attributes.size() > 0) {
             final JFrame frame = getViewer().getFrame();
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    String defaultChoice = ProgramProperties.get("SetByAttribute", "");
+            Platform.runLater(() -> {
+                String defaultChoice = ProgramProperties.get("SetByAttribute", "");
 
-                    if (!attributes.contains(defaultChoice))
-                        defaultChoice = attributes.get(0);
+                if (!attributes.contains(defaultChoice))
+                    defaultChoice = attributes.get(0);
 
-                    ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, attributes);
-                    dialog.setTitle("MEGAN6 " + getViewer().getClassName() + " choice");
-                    dialog.setHeaderText("Select attribute to label by");
-                    dialog.setContentText("Choose attribute:");
+                ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, attributes);
+                dialog.setTitle("MEGAN6 " + getViewer().getClassName() + " choice");
+                dialog.setHeaderText("Select attribute to label by");
+                dialog.setContentText("Choose attribute:");
 
-                    if (frame != null) {
-                        dialog.setX(frame.getX() + (frame.getWidth() - 200) / 2);
-                        dialog.setY(frame.getY() + (frame.getHeight() - 200) / 2);
-                    }
+                if (frame != null) {
+                    dialog.setX(frame.getX() + (frame.getWidth() - 200) / 2);
+                    dialog.setY(frame.getY() + (frame.getHeight() - 200) / 2);
+                }
 
-                    final Optional<String> result = dialog.showAndWait();
-                    if (result.isPresent()) {
-                        final String choice = result.get();
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                execute("labelBy attribute='" + choice + "';");
-                            }
-                        });
-                    }
+                final Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    final String choice = result.get();
+                    SwingUtilities.invokeLater(() -> execute("labelBy attribute='" + choice + "';"));
                 }
             });
         }

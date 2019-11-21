@@ -26,6 +26,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * maps accession strings to ids
@@ -42,7 +43,7 @@ public class Accession2IdMap implements IString2IntegerMap, Closeable {
      */
     public Accession2IdMap(final IName2IdMap label2id, final String fileName, final ProgressListener progress) throws IOException, CanceledException {
         map = new HashMap<>();
-        try (FileInputIterator it = new FileInputIterator(fileName)) {
+        try (FileLineIterator it = new FileLineIterator(fileName)) {
             progress.setSubtask("Loading file: " + fileName);
             progress.setMaximum(it.getMaximumProgress());
             progress.setProgress(it.getProgress());
@@ -79,13 +80,11 @@ public class Accession2IdMap implements IString2IntegerMap, Closeable {
 
     public int get(String accession) throws IOException {
         final Integer result = map.get(accession);
-        if (result != null)
-            return result;
-        else
-            return 0;
+        return Objects.requireNonNullElse(result, 0);
     }
 
     public Map<String, Integer> getMap() {
         return map;
     }
+
 }

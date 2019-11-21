@@ -24,9 +24,9 @@ import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
@@ -100,11 +100,7 @@ public class ComputeContrastsCommand extends CommandBase implements ICommand {
                             NodeData nd = (NodeData) v.getData();
                             for (int t = 0; t < samples.length; t++) {
                                 String sample = samples[t];
-                                Map<String, Double> classId2Counts = data.get(sample);
-                                if (classId2Counts == null) {
-                                    classId2Counts = new HashMap<>();
-                                    data.put(sample, classId2Counts);
-                                }
+                                Map<String, Double> classId2Counts = data.computeIfAbsent(sample, k -> new HashMap<>());
                                 classId2Counts.put(name2IdMap.get(classId), (double) (v.getOutDegree() > 0 ? nd.getAssigned()[t] : nd.getSummarized()[t]));
                             }
                             numberOfNodes++;
@@ -126,7 +122,7 @@ public class ComputeContrastsCommand extends CommandBase implements ICommand {
                     System.out.println("Group " + twoGroupIds.getSecond() + ": " + Basic.toString(second, ","));
 
                     System.out.println("Results for group " + twoGroupIds.getFirst() + " vs group " + twoGroupIds.getSecond() + ":");
-                    Map<String, Double> results = contrasts.getSplitScores(first.toArray(new String[first.size()]), second.toArray(new String[second.size()]));
+                    Map<String, Double> results = contrasts.getSplitScores(first.toArray(new String[0]), second.toArray(new String[0]));
 
                     SortedSet<Pair<Double, String>> sorted = new TreeSet<>();
                     System.out.println(String.format("%-20s\tScore", viewerName));
@@ -165,7 +161,7 @@ public class ComputeContrastsCommand extends CommandBase implements ICommand {
         if (openViewers.size() == 1) {
             execute("compute contrasts data=" + openViewers.get(0) + ";");
         } else if (openViewers.size() > 1) {
-            String[] choices = openViewers.toArray(new String[openViewers.size()]);
+            String[] choices = openViewers.toArray(new String[0]);
             String result = (String) JOptionPane.showInputDialog(getViewer().getFrame(), "Choose viewer", "Choose viewer", JOptionPane.PLAIN_MESSAGE, ProgramProperties.getProgramIcon(), choices, choices[0]);
             if (result != null)
                 execute("compute contrasts data=" + result + ";");
@@ -193,6 +189,6 @@ public class ComputeContrastsCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 }

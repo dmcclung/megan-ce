@@ -22,17 +22,17 @@ import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.IDirector;
 import jloda.swing.director.ProjectManager;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.ClassificationManager;
 import megan.core.Director;
 import megan.core.Document;
 import megan.core.SampleAttributeTable;
 import megan.daa.Meganize;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.util.ReadMagnitudeParser;
 
@@ -160,7 +160,7 @@ public class MeganizeDAACommand extends CommandBase implements ICommand {
             np.matchIgnoreCase("useIdentityFilter=");
             useIdentityFilter = np.getBoolean();
             if (useIdentityFilter)
-                System.err.println("IGNORED setting: useIdentityFilter=" + useIdentityFilter);
+                System.err.println("IGNORED setting: useIdentityFilter=" + true);
         }
 
         Document.ReadAssignmentMode readAssignmentMode = Document.DEFAULT_READ_ASSIGNMENT_MODE_SHORT_READS;
@@ -276,7 +276,8 @@ public class MeganizeDAACommand extends CommandBase implements ICommand {
             } catch (CanceledException ex) {
                 throw ex;
             } catch (Exception ex) {
-                System.err.println("Error: " + ex.getMessage());
+                NotificationsInSwing.showError(ex.getMessage());
+                System.err.println(ex.getMessage());
                 countFailed++;
             }
         }
@@ -334,7 +335,7 @@ public class MeganizeDAACommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     /**

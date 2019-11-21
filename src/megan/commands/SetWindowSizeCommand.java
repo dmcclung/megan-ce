@@ -20,9 +20,9 @@ package megan.commands;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.IDirectableViewer;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -77,7 +77,7 @@ public class SetWindowSizeCommand extends jloda.swing.commands.CommandBase imple
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

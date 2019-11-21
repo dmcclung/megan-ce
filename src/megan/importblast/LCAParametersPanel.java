@@ -19,7 +19,7 @@
 package megan.importblast;
 
 import jloda.swing.commands.CommandManager;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import megan.core.Document;
 import megan.importblast.commands.SetUseComplexityFilterCommand;
 import megan.importblast.commands.SetUseIdentityFilterCommand;
@@ -101,9 +101,8 @@ public class LCAParametersPanel extends JPanel {
                 lcaAlgorithmComboBox.addItem(algorithm.toString());
             }
 
-            lcaAlgorithmComboBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
+            lcaAlgorithmComboBox.addActionListener(e -> {
+                if(lcaAlgorithmComboBox.getSelectedItem()!=null) {
                     switch (Document.LCAAlgorithm.valueOfIgnoreCase(lcaAlgorithmComboBox.getSelectedItem().toString())) {
                         case naive:
                             dialog.getLcaCoveragePercentField().setText("100");
@@ -120,14 +119,14 @@ public class LCAParametersPanel extends JPanel {
                         default:
                             lcaAlgorithmComboBox.setToolTipText("Select LCA algorithm");
                     }
-
-                    if (lcaAlgorithmComboBox.getSelectedItem() != null) {
-                        final Document.LCAAlgorithm algorithm = Document.LCAAlgorithm.valueOfIgnoreCase((String) lcaAlgorithmComboBox.getSelectedItem());
-                        dialog.setLcaAlgorithm(algorithm != null ? algorithm : Document.DEFAULT_LCA_ALGORITHM_SHORT_READS);
-                    } else
-                        dialog.setLcaAlgorithm(Document.DEFAULT_LCA_ALGORITHM_SHORT_READS);
-                    ProgramProperties.put("SelectedLCAAlgorithm" + (dialog.isLongReads() ? "LongReads" : "ShortReads"), dialog.getLcaAlgorithm().toString());
                 }
+
+                if (lcaAlgorithmComboBox.getSelectedItem() != null) {
+                    final Document.LCAAlgorithm algorithm = Document.LCAAlgorithm.valueOfIgnoreCase((String) lcaAlgorithmComboBox.getSelectedItem());
+                    dialog.setLcaAlgorithm(algorithm != null ? algorithm : Document.DEFAULT_LCA_ALGORITHM_SHORT_READS);
+                } else
+                    dialog.setLcaAlgorithm(Document.DEFAULT_LCA_ALGORITHM_SHORT_READS);
+                ProgramProperties.put("SelectedLCAAlgorithm" + (dialog.isLongReads() ? "LongReads" : "ShortReads"), dialog.getLcaAlgorithm().toString());
             });
 
 
@@ -152,28 +151,25 @@ public class LCAParametersPanel extends JPanel {
             }
             centerPanel.add(readAssignmentModeComboBox);
             readAssignmentModeComboBox.setToolTipText("Read assignment mode: determines what is shown as number of assigned reads in taxonomy analysis");
-            readAssignmentModeComboBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (readAssignmentModeComboBox.getSelectedItem() != null) {
-                        ProgramProperties.put("ReadAssignmentModeComboBox", readAssignmentModeComboBox.toString());
-                    }
-                    switch (Document.ReadAssignmentMode.valueOfIgnoreCase(readAssignmentModeComboBox.getSelectedItem().toString())) {
-                        case readCount:
-                            readAssignmentModeComboBox.setToolTipText("Display read counts as 'assigned reads' in taxonomy viewer");
-                            break;
-                        case readLength:
-                            readAssignmentModeComboBox.setToolTipText("Display sum of read lengths as 'assigned reads' in taxonomy viewer");
-                            break;
-                        case alignedBases:
-                            readAssignmentModeComboBox.setToolTipText("Display number of aligned bases as 'assigned reads' in taxonomy viewer");
-                            break;
-                        case readMagnitude:
-                            readAssignmentModeComboBox.setToolTipText("Display sum of read magnitudes as 'assigned reads' in taxonomy viewer");
-                            break;
-                        default:
-                            readAssignmentModeComboBox.setToolTipText("Select what to display as 'assigned reads' in taxonomy viewer");
-                    }
+            readAssignmentModeComboBox.addActionListener(e -> {
+                if (readAssignmentModeComboBox.getSelectedItem() != null) {
+                    ProgramProperties.put("ReadAssignmentModeComboBox", readAssignmentModeComboBox.toString());
+                }
+                switch (Document.ReadAssignmentMode.valueOfIgnoreCase(readAssignmentModeComboBox.getSelectedItem().toString())) {
+                    case readCount:
+                        readAssignmentModeComboBox.setToolTipText("Display read counts as 'assigned reads' in taxonomy viewer");
+                        break;
+                    case readLength:
+                        readAssignmentModeComboBox.setToolTipText("Display sum of read lengths as 'assigned reads' in taxonomy viewer");
+                        break;
+                    case alignedBases:
+                        readAssignmentModeComboBox.setToolTipText("Display number of aligned bases as 'assigned reads' in taxonomy viewer");
+                        break;
+                    case readMagnitude:
+                        readAssignmentModeComboBox.setToolTipText("Display sum of read magnitudes as 'assigned reads' in taxonomy viewer");
+                        break;
+                    default:
+                        readAssignmentModeComboBox.setToolTipText("Select what to display as 'assigned reads' in taxonomy viewer");
                 }
             });
             centerPanel.add(new JLabel(" "));

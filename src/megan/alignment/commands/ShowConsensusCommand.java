@@ -75,7 +75,7 @@ public class ShowConsensusCommand extends CommandBase implements ICheckBoxComman
         execute("set show-consensus=" + !isSelected() + ";");
     }
 
-    public static final String NAME = "Show Consensus";
+    private static final String NAME = "Show Consensus";
 
     public String getName() {
         return NAME;

@@ -21,10 +21,10 @@ package megan.commands.select;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.ProjectManager;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
 import megan.clusteranalysis.ClusterViewer;
-import megan.fx.NotificationsInSwing;
 import megan.groups.GroupsViewer;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.ViewerBase;
@@ -136,6 +136,6 @@ public class SelectAllNodesCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 }

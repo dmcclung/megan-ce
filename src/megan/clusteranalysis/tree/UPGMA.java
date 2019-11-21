@@ -45,7 +45,7 @@ public class UPGMA {
         if (instance == null)
             instance = new UPGMA();
         instance.computeUPMATree(taxa, distances, treeView.getPhyloTree());
-        instance.embedTree(treeView);
+        embedTree(treeView);
     }
 
     /**
@@ -70,7 +70,7 @@ public class UPGMA {
             sizes[i] = 1;
         }
 
-        double d[][] = new double[ntax + 1][ntax + 1];// distance matix
+        double[][] d = new double[ntax + 1][ntax + 1];// distance matix
 
         //Initialise d
         //Compute the closest values for each taxa.

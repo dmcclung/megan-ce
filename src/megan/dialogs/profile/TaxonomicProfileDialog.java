@@ -20,9 +20,9 @@ package megan.dialogs.profile;
 
 import jloda.swing.commands.CommandManager;
 import jloda.swing.director.IDirector;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.RememberingComboBox;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import megan.dialogs.profile.commands.ApplyCommand;
 import megan.dialogs.profile.commands.CancelCommand;
 import megan.dialogs.profile.commands.UseProjectionMethodCommand;
@@ -34,6 +34,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Objects;
 
 /**
  * dialog to set up taxonomic profile calculation
@@ -60,8 +61,7 @@ public class TaxonomicProfileDialog extends JDialog {
      */
     public TaxonomicProfileDialog(JFrame parent, IDirector dir) {
         super(parent);
-
-        this.setIconImage(ProgramProperties.getProgramIcon().getImage());
+        setIconImages(ProgramProperties.getProgramIconImages());
 
         method = ProfileMethod.Projection;
 
@@ -105,12 +105,9 @@ public class TaxonomicProfileDialog extends JDialog {
         rankCbox.setToolTipText("Taxonomic rank at which profile is to be computed");
         linePanel.add(Box.createHorizontalGlue());
         middlePanel.add(linePanel);
-        rankCbox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    setRank(e.getItem().toString());
-            }
+        rankCbox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED)
+                setRank(e.getItem().toString());
         });
 
         linePanel = new JPanel();
@@ -173,7 +170,7 @@ public class TaxonomicProfileDialog extends JDialog {
      * get the command string
      */
     public String getCommand() {
-        rank = rankCbox.getSelectedItem().toString();
+        rank = Objects.requireNonNull(rankCbox.getSelectedItem()).toString();
         ProgramProperties.put("ProfileRank", rankCbox.getSelectedItem().toString());
         ProgramProperties.put("ProfileMinPercent", Basic.parseDouble(minPercentageField.getText()));
         return "compute profile=" + getMethod().toString() + " rank=" + rank + " minPercent=" + minPercentageField.getText() + ";";
@@ -199,7 +196,7 @@ public class TaxonomicProfileDialog extends JDialog {
         return rank;
     }
 
-    public void setRank(String rank) {
+    private void setRank(String rank) {
         this.rank = rank;
     }
 }

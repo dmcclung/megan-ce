@@ -18,11 +18,8 @@
  */
 package megan.algorithms;
 
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.CanceledException;
-import jloda.util.ProgressListener;
-import jloda.util.ProgressPercentage;
+import jloda.swing.window.NotificationsInSwing;
+import jloda.util.*;
 import jloda.util.interval.Interval;
 import jloda.util.interval.IntervalTree;
 import megan.classification.Classification;
@@ -33,7 +30,6 @@ import megan.core.Document;
 import megan.core.ReadAssignmentCalculator;
 import megan.core.SyncArchiveAndDataTable;
 import megan.data.*;
-import megan.fx.NotificationsInSwing;
 import megan.io.InputOutputReaderWriter;
 import megan.rma6.RMA6File;
 import megan.rma6.ReadBlockRMA6;
@@ -53,11 +49,6 @@ public class DataProcessor {
      * @throws jloda.util.CanceledException
      */
     public static int apply(final Document doc) throws CanceledException {
-        if (ProgramProperties.get("UseParallelDataProcessor", false)) {
-            DataProcessorParallel dataProcessorParallel = new DataProcessorParallel(doc);
-            return dataProcessorParallel.apply();
-        }
-
         final ProgressListener progress = doc.getProgressListener();
         try {
             progress.setTasks("Binning reads", "Initializing...");

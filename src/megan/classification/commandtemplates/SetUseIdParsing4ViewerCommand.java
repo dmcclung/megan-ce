@@ -21,9 +21,10 @@ package megan.classification.commandtemplates;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICheckBoxCommand;
 import jloda.swing.director.IDirectableViewer;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
+import megan.classification.ClassificationManager;
 import megan.classification.IdMapper;
 
 import javax.swing.*;
@@ -108,7 +109,7 @@ public class SetUseIdParsing4ViewerCommand extends CommandBase implements ICheck
      * @return true, if command can be applied
      */
     public boolean isApplicable() {
-        return true;
+        return  !ClassificationManager.isUseFastAccessionMappingMode();
     }
 
     /**

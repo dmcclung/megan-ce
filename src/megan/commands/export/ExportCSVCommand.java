@@ -20,15 +20,19 @@ package megan.commands.export;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.IDirectableViewer;
-import jloda.swing.util.*;
+import jloda.swing.window.NotificationsInSwing;
+import jloda.swing.util.ChooseFileDialog;
+import jloda.swing.util.RememberingComboBox;
+import jloda.swing.util.ResourceManager;
+import jloda.swing.util.TextFileFilter;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
 import megan.commands.CommandBase;
 import megan.core.Director;
 import megan.core.Document;
 import megan.dialogs.export.CSVExporter;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.ViewerBase;
 
@@ -37,11 +41,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class ExportCSVCommand extends CommandBase implements ICommand {
-    public static final String EXPORT_CHOICE = "CSVExportChoice";
-    public static final String COUNT_CHOICE = "CSVCount";
-    public static final String SEPARATOR_CHOICE = "CSVSeperator";
+    private static final String EXPORT_CHOICE = "CSVExportChoice";
+    private static final String COUNT_CHOICE = "CSVCount";
+    private static final String SEPARATOR_CHOICE = "CSVSeperator";
 
     public enum Choice {assigned, summarized}
 
@@ -130,7 +135,7 @@ public class ExportCSVCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public String getDescription() {
@@ -193,9 +198,9 @@ public class ExportCSVCommand extends CommandBase implements ICommand {
         final int result = JOptionPane.showConfirmDialog(parent, myPanel, "MEGAN - Export to CSV", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
                 ProgramProperties.getProgramIcon());
         if (result == JOptionPane.OK_OPTION) {
-            ProgramProperties.put(EXPORT_CHOICE, choice0.getSelectedItem().toString());
-            ProgramProperties.put(COUNT_CHOICE, choice1.getSelectedItem().toString());
-            ProgramProperties.put(SEPARATOR_CHOICE, choice2.getSelectedItem().toString());
+            ProgramProperties.put(EXPORT_CHOICE, Objects.requireNonNull(choice0.getSelectedItem()).toString());
+            ProgramProperties.put(COUNT_CHOICE, Objects.requireNonNull(choice1.getSelectedItem()).toString());
+            ProgramProperties.put(SEPARATOR_CHOICE, Objects.requireNonNull(choice2.getSelectedItem()).toString());
 
             return new String[]{choice0.getCurrentText(false), choice1.getCurrentText(false), choice2.getCurrentText(false)};
         }

@@ -20,14 +20,14 @@ package megan.commands.additional;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.algorithms.NaiveProjectionProfile;
 import megan.classification.ClassificationManager;
 import megan.core.*;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.util.CallBack;
 import megan.util.PopupChoice;
@@ -161,9 +161,9 @@ public class ProjectAssignmentsToRankCommand extends CommandBase implements ICom
     }
 
     public void actionPerformed(ActionEvent event) {
-        final String[] ranks = TaxonomicLevels.getAllMajorRanks().toArray(new String[TaxonomicLevels.getAllMajorRanks().size()]);
+        final String[] ranks = TaxonomicLevels.getAllMajorRanks().toArray(new String[0]);
 
-        PopupChoice<String> popupChoice = new PopupChoice<>(ranks, null, new CallBack<String>() {
+        PopupChoice<String> popupChoice = new PopupChoice<>(ranks, null, new CallBack<>() {
             @Override
             public void call(String choice) {
                 execute("collapse rank='" + choice + "';project rank='" + choice + "' minPercent=0;");
@@ -187,7 +187,7 @@ public class ProjectAssignmentsToRankCommand extends CommandBase implements ICom
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/New16.gif");
+        return ResourceManager.getIcon("sun/New16.gif");
     }
 
     public boolean isCritical() {
@@ -196,6 +196,6 @@ public class ProjectAssignmentsToRankCommand extends CommandBase implements ICom
 
     @Override
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 }

@@ -18,15 +18,15 @@
  */
 package megan.biom.biom1;
 
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
+import jloda.util.BlastMode;
+import jloda.util.ProgramProperties;
 import megan.classification.Classification;
 import megan.classification.IdMapper;
 import megan.core.ClassificationType;
 import megan.core.DataTable;
 import megan.core.Document;
 import megan.core.MeganFile;
-import megan.fx.NotificationsInSwing;
-import megan.parsers.blast.BlastMode;
 import megan.util.BiomFileFilter;
 import megan.viewer.MainViewer;
 
@@ -104,11 +104,7 @@ public class BIOM1Importer {
                 if (count == null)
                     count = 0;
 
-                float[] counts = targetClass2counts.get(classId);
-                if (counts == null) {
-                    counts = new float[numberOfSeries];
-                    targetClass2counts.put(classId, counts);
-                }
+                float[] counts = targetClass2counts.computeIfAbsent(classId, k -> new float[numberOfSeries]);
                 counts[seriesId] = count;
                 totalReads += count;
                 sizes[seriesId] += count;
@@ -144,11 +140,7 @@ public class BIOM1Importer {
      * @return entry
      */
     private static Integer[] getOrCreate(Map<Integer, Integer[]> map, Integer id, int size) {
-        Integer[] result = map.get(id);
-        if (result == null) {
-            result = newZeroedIntegerArray(size);
-            map.put(id, result);
-        }
+        Integer[] result = map.computeIfAbsent(id, k -> newZeroedIntegerArray(size));
         return result;
     }
 

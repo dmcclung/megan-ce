@@ -21,6 +21,7 @@ package megan.viewer.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
 import jloda.swing.util.FastaFileFilter;
 import jloda.swing.util.ResourceManager;
@@ -28,7 +29,6 @@ import jloda.util.Basic;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Document;
 import megan.dialogs.export.analysis.FrameShiftCorrectedReadsExporter;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.ClassificationViewer;
 
 import javax.swing.*;
@@ -96,7 +96,7 @@ public class ExportFrameShiftCorrectedReadsCommand extends CommandBase implement
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public String getDescription() {

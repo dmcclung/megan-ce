@@ -19,7 +19,7 @@
 package megan.chart.drawers;
 
 import jloda.swing.util.Geometry;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import megan.chart.IChartDrawer;
 import megan.chart.IMultiChartDrawable;
 import megan.chart.data.DefaultChartData;
@@ -36,7 +36,7 @@ import java.awt.geom.Point2D;
  * Daniel Huson, 6.2012
  */
 public class PieChartDrawer extends BarChartDrawer implements IChartDrawer, IMultiChartDrawable {
-    public static final String NAME = "PieChart";
+    private static final String NAME = "PieChart";
 
     private Graphics graphics;
     private int width;

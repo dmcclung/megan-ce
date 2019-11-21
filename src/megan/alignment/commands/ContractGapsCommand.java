@@ -76,7 +76,7 @@ public class ContractGapsCommand extends CommandBase implements ICheckBoxCommand
         execute("set contract-gaps=" + !isSelected() + ";");
     }
 
-    public static final String NAME = "Contract Gaps";
+    private static final String NAME = "Contract Gaps";
 
     public String getName() {
         return NAME;

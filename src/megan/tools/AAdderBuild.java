@@ -21,16 +21,17 @@ package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
 import jloda.swing.util.BasicSwing;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.util.ResourceManager;
 import jloda.util.*;
 import jloda.util.interval.Interval;
-import malt.genes.CDS;
-import malt.genes.GeneItem;
-import malt.genes.GeneItemCreator;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
 import megan.classification.IdMapper;
+import megan.genes.CDS;
+import megan.genes.GeneItem;
+import megan.genes.GeneItemCreator;
 import megan.io.OutputWriter;
+import megan.main.Megan6;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,13 +45,14 @@ public class AAdderBuild {
     final public static byte[] MAGIC_NUMBER_IDX = "AAddIdxV0.1.".getBytes();
     final public static byte[] MAGIC_NUMBER_DBX = "AAddDbxV0.1.".getBytes();
 
-    final public static String INDEX_CREATOR = "AADD";
+    private final static String INDEX_CREATOR = "AADD";
 
     /**
      * add functional annotations to DNA alignments
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("AAdderBuild");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -68,14 +70,14 @@ public class AAdderBuild {
     /**
      * run the program
      */
-    public void run(String[] args) throws CanceledException, IOException, UsageException {
+    private void run(String[] args) throws CanceledException, IOException, UsageException {
         final ArgsOptions options = new ArgsOptions(args, this, "Build the index for AAdd");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
         options.setAuthors("Daniel H. Huson");
 
         options.comment("Input Output");
-        final List<String> gffFiles = options.getOptionMandatory("-igff", "inputGFF", "Input GFF3 files or directory (.gz ok)", new LinkedList<String>());
+        final List<String> gffFiles = options.getOptionMandatory("-igff", "inputGFF", "Input GFF3 files or directory (.gz ok)", new LinkedList<>());
         final String indexDirectory = options.getOptionMandatory("-d", "index", "Index directory", "");
 
         options.comment("Classification mapping");
@@ -177,11 +179,7 @@ public class AAdderBuild {
 
         try (ProgressListener progress = new ProgressPercentage("Building annotation list", annotations.size())) {
             for (CDS cds : annotations) {
-                ArrayList<Interval<GeneItem>> list = dnaId2list.get(cds.getDnaId());
-                if (list == null) {
-                    list = new ArrayList<>();
-                    dnaId2list.put(cds.getDnaId(), list);
-                }
+                ArrayList<Interval<GeneItem>> list = dnaId2list.computeIfAbsent(cds.getDnaId(), k -> new ArrayList<>());
                 final GeneItem geneItem = creator.createGeneItem();
                 final String accession = cds.getProteinId();
                 geneItem.setProteinId(accession.getBytes());

@@ -19,9 +19,9 @@
 package megan.importblast.commands;
 
 import jloda.swing.commands.ICheckBoxCommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
-import megan.fx.NotificationsInSwing;
 import megan.importblast.ImportBlastDialog;
 
 import javax.swing.*;
@@ -62,14 +62,14 @@ public class UseContaminantsFilterCommand extends CommandBase implements ICheckB
         return NAME;
     }
 
-    public final static String DESCRIPTION = "Filter reads that align to any of the provided contaminants";
+    private final static String DESCRIPTION = "Filter reads that align to any of the provided contaminants";
 
     public String getDescription() {
         return DESCRIPTION;
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

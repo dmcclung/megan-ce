@@ -41,7 +41,7 @@ public class JensensShannonDivergenceCommand extends CommandBase implements IChe
         return viewer.getEcologicalIndex().equalsIgnoreCase(JensenShannonDivergence.NAME);
     }
 
-    public static final String NAME = "Use JSD";
+    private static final String NAME = "Use JSD";
 
     /**
      * get the name to be used as a menu label

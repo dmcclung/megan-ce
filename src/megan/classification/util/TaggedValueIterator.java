@@ -91,7 +91,7 @@ public class TaggedValueIterator implements Iterator<String>, java.lang.Iterable
      *
      * @param aLine
      */
-    public void restart(String aLine) {
+    public TaggedValueIterator restart(String aLine) {
         this.aLine = aLine;
         tagPos = 0;
         nextResult = getNextResult();
@@ -116,6 +116,7 @@ public class TaggedValueIterator implements Iterator<String>, java.lang.Iterable
             }
             tagPos = b;
         }
+        return this;
     }
 
     @Override
@@ -176,7 +177,7 @@ public class TaggedValueIterator implements Iterator<String>, java.lang.Iterable
      * @param query
      * @return true, if string starts with query at offset
      */
-    public static boolean match(final String string, final int offset, final String query) {
+    private static boolean match(final String string, final int offset, final String query) {
         if (string.length() - offset < query.length())
             return false;
 

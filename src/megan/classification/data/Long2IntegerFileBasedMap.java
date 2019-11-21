@@ -60,7 +60,7 @@ public class Long2IntegerFileBasedMap implements ILong2IntegerMap, Closeable {
         int totalIn = 0;
         int totalSkipped = -100; // allow ourselves 100 skips more than totalIn before we give up...
 
-        try (final FileInputIterator it = new FileInputIterator(file)) {
+        try (final FileLineIterator it = new FileLineIterator(file)) {
             progress.setTasks("Loading file", file.getName());
             progress.setProgress(0);
             progress.setMaximum(it.getMaximumProgress());
@@ -102,7 +102,7 @@ public class Long2IntegerFileBasedMap implements ILong2IntegerMap, Closeable {
      * @param key
      * @param value
      */
-    public void put(long key, int value) {
+    private void put(long key, int value) {
         maps[(int) (key & MASK)].put((int) (key >>> BITS), value);
     }
 
@@ -138,7 +138,7 @@ public class Long2IntegerFileBasedMap implements ILong2IntegerMap, Closeable {
         System.err.println("Converting " + dmpFile.getName() + " to " + binFile.getName() + "...");
 
         long totalOut = 0;
-        try (final FileInputIterator it = new FileInputIterator(dmpFile, true);
+        try (final FileLineIterator it = new FileLineIterator(dmpFile, true);
              OutputWriter outs = new OutputWriter(binFile)) {
             System.err.println("Writing file: " + binFile);
             outs.writeInt(MAGIC_NUMBER);
@@ -155,7 +155,7 @@ public class Long2IntegerFileBasedMap implements ILong2IntegerMap, Closeable {
                 if (gi >= 0) {
                     final int taxId = Integer.parseInt(aLine.substring(pos + 1));
 
-                    if (gi >= 0 && gi <= lastGi)
+                    if (gi <= lastGi)
                         throw new IOException("Error, line: " + lineNo + ": GIs out of order: " + gi + " after " + lastGi);
 
                     // fill in missing Gis

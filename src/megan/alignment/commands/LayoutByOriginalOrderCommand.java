@@ -66,7 +66,7 @@ public class LayoutByOriginalOrderCommand extends CommandBase implements ICheckB
         execute("set layout=" + AlignmentViewer.AlignmentLayout.Unsorted.toString() + ";expand axis=both what=fit;");
     }
 
-    public static final String NAME = "Unsorted";
+    private static final String NAME = "Unsorted";
 
     public String getName() {
         return NAME;

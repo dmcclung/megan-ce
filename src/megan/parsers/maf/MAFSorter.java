@@ -44,7 +44,7 @@ public class MAFSorter {
      * @return name of temporary file containing all sorted alignments
      * @throws IOException
      */
-    public static String apply(File readsFile, File mafFile, ProgressListener progress) throws IOException, CanceledException {
+    private static String apply(File readsFile, File mafFile, ProgressListener progress) throws IOException, CanceledException {
         if (isUnsorted(mafFile)) {
             String header = getHeaderLines(mafFile);
             return createSortedFile(header, readsFile, mafFile, progress);
@@ -84,7 +84,7 @@ public class MAFSorter {
             try {
                 progress.setSubtask("Processing batches:");
                 progress.setProgress(0);
-                try (FileInputIterator it = new FileInputIterator(readsFile)) {
+                try (FileLineIterator it = new FileLineIterator(readsFile)) {
                     progress.setProgress(it.getMaximumProgress());
                     while (it.hasNext()) {
                         final String line = it.next();
@@ -161,7 +161,7 @@ public class MAFSorter {
      */
     private static String getHeaderLines(File mafFile) throws IOException {
         final StringBuilder buf = new StringBuilder();
-        try (FileInputIterator it = new FileInputIterator(mafFile)) {
+        try (FileLineIterator it = new FileLineIterator(mafFile)) {
             while (it.hasNext()) {
                 final String aLine = it.next();
                 if (aLine.startsWith("#")) {
@@ -183,7 +183,7 @@ public class MAFSorter {
      * @throws IOException
      */
     private static boolean isUnsorted(File mafFile) throws IOException {
-        try (FileInputIterator it = new FileInputIterator(mafFile)) {
+        try (FileLineIterator it = new FileLineIterator(mafFile)) {
             while (it.hasNext()) {
                 String line = it.next();
                 if (line.startsWith("#")) {
@@ -205,11 +205,11 @@ public class MAFSorter {
      * @return
      * @throws IOException
      */
-    public static ArrayList<Long> getBatchStartPositions(File mafFile, ProgressListener progress) throws IOException, CanceledException {
+    private static ArrayList<Long> getBatchStartPositions(File mafFile, ProgressListener progress) throws IOException, CanceledException {
         progress.setSubtask("Determining batches in MAF file");
         final ArrayList<Long> batchStartPositions = new ArrayList<>();
 
-        try (FileInputIterator it = new FileInputIterator(mafFile)) {
+        try (FileLineIterator it = new FileLineIterator(mafFile)) {
             progress.setMaximum(it.getMaximumProgress());
             progress.setProgress(0);
             while (it.hasNext()) {

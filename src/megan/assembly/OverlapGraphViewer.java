@@ -26,8 +26,8 @@ import jloda.swing.graphview.EdgeActionAdapter;
 import jloda.swing.graphview.EdgeView;
 import jloda.swing.graphview.GraphView;
 import jloda.swing.graphview.NodeActionAdapter;
-import jloda.swing.util.MenuBar;
-import jloda.swing.util.MenuConfiguration;
+import jloda.swing.window.MenuBar;
+import jloda.swing.window.MenuConfiguration;
 import jloda.util.APoint2D;
 import jloda.util.CanceledException;
 import jloda.util.ProgressListener;
@@ -243,7 +243,7 @@ public class OverlapGraphViewer {
 
         CommandManager commandManager = new CommandManager(dir, graphView, new String[]{"megan.commands"});
 
-        commandManager.addCommands(this, Collections.singletonList((ICommand) (new SelectFromPreviousWindowCommand())), true);
+        commandManager.addCommands(this, Collections.singletonList(new SelectFromPreviousWindowCommand()), true);
 
         MenuConfiguration menuConfig = GUIConfiguration.getMenuConfiguration();
 

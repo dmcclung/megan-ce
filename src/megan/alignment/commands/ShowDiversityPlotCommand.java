@@ -89,7 +89,7 @@ public class ShowDiversityPlotCommand extends CommandBase implements ICommand {
         execute("chart wordCount kmer=25 step=" + step + " mindepth=10;");
     }
 
-    public static final String NAME = "Chart Diversity...";
+    private static final String NAME = "Chart Diversity...";
 
     public String getName() {
         return NAME;
@@ -120,7 +120,7 @@ public class ShowDiversityPlotCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_D, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_D, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

@@ -20,17 +20,15 @@ package megan.tools;
 
 import jloda.swing.director.ProjectManager;
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.PeakMemoryUsageMonitor;
-import jloda.util.ProgressSilent;
-import jloda.util.UsageException;
+import jloda.swing.util.ResourceManager;
+import jloda.util.*;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.SaveCommand;
 import megan.commands.algorithms.ComputeBiomeCommand;
 import megan.core.Director;
 import megan.core.Document;
 import megan.core.MeganFile;
+import megan.main.Megan6;
 import megan.viewer.TaxonomyData;
 
 import java.io.File;
@@ -55,6 +53,7 @@ public class ExtractBiome {
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("ExtractBiome");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -77,7 +76,7 @@ public class ExtractBiome {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public void run(String[] args) throws Exception {
+    private void run(String[] args) throws Exception {
         final ArgsOptions options = new ArgsOptions(args, this, "Extracts the total, core or rare biome from a MEGAN comparison file");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");

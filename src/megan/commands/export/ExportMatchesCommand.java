@@ -19,6 +19,7 @@
 package megan.commands.export;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.BlastFileFilter;
 import jloda.swing.util.ChooseFileDialog;
 import jloda.swing.util.ResourceManager;
@@ -31,7 +32,6 @@ import megan.core.ClassificationType;
 import megan.core.Director;
 import megan.core.Document;
 import megan.dialogs.export.MatchesExporter;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.MainViewer;
 
@@ -107,7 +107,7 @@ public class ExportMatchesCommand extends CommandBase implements ICommand {
         if (getViewer() instanceof MainViewer) {
             data = Classification.Taxonomy;
         } else if (getViewer() instanceof ClassificationViewer) {
-            data = ((ClassificationViewer) getViewer()).getClassName();
+            data = getViewer().getClassName();
         } else
             return;
 
@@ -123,7 +123,7 @@ public class ExportMatchesCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public String getDescription() {

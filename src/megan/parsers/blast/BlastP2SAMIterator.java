@@ -18,7 +18,7 @@
  */
 package megan.parsers.blast;
 
-import megan.fx.NotificationsInSwing;
+import jloda.swing.window.NotificationsInSwing;
 import megan.util.BlastPTextFileFilter;
 
 import java.io.IOException;

@@ -19,12 +19,14 @@
 package megan.commands.additional;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.swing.util.TextFileFilter;
 import jloda.util.Basic;
+import jloda.util.BlastMode;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.assembly.ReadAssembler;
 import megan.assembly.ReadData;
@@ -33,8 +35,6 @@ import megan.commands.CommandBase;
 import megan.core.Director;
 import megan.core.Document;
 import megan.data.IReadBlockIterator;
-import megan.fx.NotificationsInSwing;
-import megan.parsers.blast.BlastMode;
 import megan.viewer.ClassificationViewer;
 
 import javax.swing.*;
@@ -146,7 +146,7 @@ public class ExportOverlapGraphCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public boolean isCritical() {

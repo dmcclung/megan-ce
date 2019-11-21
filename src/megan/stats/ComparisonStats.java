@@ -21,11 +21,11 @@ package megan.stats;
 import jloda.graph.Node;
 import jloda.graph.NodeData;
 import jloda.phylo.PhyloTree;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
 import megan.classification.IdMapper;
 import megan.core.Director;
-import megan.fx.NotificationsInSwing;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -38,8 +38,8 @@ import java.util.TreeMap;
  * statistical comparison of two datasets
  * Daniel Huson, 3.2007
  */
-public class ComparisonStats {
-    private static List<String> methods;
+class ComparisonStats {
+    private static final List<String> methods;
 
     static {
         methods = new LinkedList<>();
@@ -96,7 +96,7 @@ public class ComparisonStats {
      * @param dir
      * @return input map
      */
-    static Map<Integer, Float> computeInputMapFromLeaves(Director dir, boolean useInternal, boolean useUnassigned) {
+    private static Map<Integer, Float> computeInputMapFromLeaves(Director dir, boolean useInternal, boolean useUnassigned) {
         Map<Integer, Float> map = new TreeMap<>();
 
         PhyloTree tree = dir.getMainViewer().getTree();

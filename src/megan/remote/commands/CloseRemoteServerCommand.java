@@ -20,9 +20,9 @@ package megan.remote.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
-import megan.fx.NotificationsInSwing;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -77,13 +77,13 @@ public class CloseRemoteServerCommand extends CommandBase implements ICommand {
         }
     }
 
-    public static final String NAME = "Close";
+    private static final String NAME = "Close";
 
     public String getName() {
         return NAME;
     }
 
-    public static final String ALT_NAME = "Close Remote Server...";
+    private static final String ALT_NAME = "Close Remote Server...";
 
     public String getAltName() {
         return ALT_NAME;

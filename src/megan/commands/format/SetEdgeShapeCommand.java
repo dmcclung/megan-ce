@@ -23,7 +23,7 @@ import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.graphview.EdgeView;
 import jloda.swing.graphview.GraphView;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 
 import javax.swing.*;
@@ -112,7 +112,7 @@ public class SetEdgeShapeCommand extends CommandBase implements ICommand {
      * @param ev
      */
     public void actionPerformed(ActionEvent ev) {
-        String choices[] = new String[]{"angular", "straight", "curved", "none"};
+        String[] choices = new String[]{"angular", "straight", "curved", "none"};
 
         String result = (String) JOptionPane.showInputDialog(getViewer().getFrame(), "Set edge shape", "Set edge shape", JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon(), choices, choices[0]);
 

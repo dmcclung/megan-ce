@@ -20,7 +20,7 @@ package megan.alignment.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICheckBoxCommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentViewer;
 
@@ -75,7 +75,7 @@ public class SetColorMismatchesVsConsensusCommand extends CommandBase implements
         execute("set colorMismatchesVsConsensus=" + (!isSelected()) + ";");
     }
 
-    public static final String NAME = "Mismatches Vs Consensus";
+    private static final String NAME = "Mismatches Vs Consensus";
 
     public String getName() {
         return NAME;

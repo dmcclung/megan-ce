@@ -20,11 +20,8 @@
 package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.CanceledException;
-import jloda.util.ProgressPercentage;
-import jloda.util.UsageException;
+import jloda.swing.util.ResourceManager;
+import jloda.util.*;
 import megan.algorithms.ActiveMatches;
 import megan.algorithms.TaxonPathAssignment;
 import megan.algorithms.TopAssignment;
@@ -34,9 +31,10 @@ import megan.classification.IdMapper;
 import megan.classification.IdParser;
 import megan.core.Document;
 import megan.data.IReadBlock;
+import megan.main.Megan6;
 import megan.main.MeganProperties;
 import megan.parsers.blast.BlastFileFormat;
-import megan.parsers.blast.BlastMode;
+import megan.parsers.blast.BlastModeUtils;
 import megan.rma6.BlastFileReadBlockIterator;
 
 import java.io.BufferedWriter;
@@ -49,6 +47,7 @@ import java.util.BitSet;
  * Program that parses Blast input and computes a taxonomy classification and also a KEGG mapping, if desired
  * Daniel Huson, 3.2012
  */
+@Deprecated
 public class Blast2LCA {
     /**
      * prepare DNA protein for pDNA
@@ -59,6 +58,7 @@ public class Blast2LCA {
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("Blast2LCA");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -81,7 +81,7 @@ public class Blast2LCA {
      * @throws java.io.IOException
      * @throws ClassNotFoundException
      */
-    public void run(String[] args) throws UsageException, IOException, ClassNotFoundException, CanceledException {
+    private void run(String[] args) throws UsageException, IOException, ClassNotFoundException, CanceledException {
         final ArgsOptions options = new ArgsOptions(args, this, "Applies the LCA alignment to reads and produce a taxonomic classification");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
@@ -121,11 +121,10 @@ public class Blast2LCA {
         options.comment("Classification support:");
 
         final boolean parseTaxonNames = options.getOption("-tn", "parseTaxonNames", "Parse taxon names", true);
-        final String gi2TaxaFile = options.getOption("-g2t", "gi2taxa", "GI-to-Taxonomy mapping file", "");
+        final String mapDBFile = options.getOption("-mdb", "mapDB", "MEGAN mapping db (file megan-map.db)", "");
         final String acc2TaxaFile = options.getOption("-a2t", "acc2taxa", "Accession-to-Taxonomy mapping file", "");
         final String synonyms2TaxaFile = options.getOption("-s2t", "syn2taxa", "Synonyms-to-Taxonomy mapping file", "");
 
-        final String gi2KeggFile = options.getOption("-g2kegg", "gi2kegg", "GI-to-KEGG mapping file", "");
         final String acc2KeggFile = options.getOption("-a2kegg", "acc2kegg", "Accession-to-KEGG mapping file", "");
         final String synonyms2KeggFile = options.getOption("-s2kegg", "syn2kegg", "Synonyms-to-KEGG mapping file", "");
 
@@ -133,6 +132,12 @@ public class Blast2LCA {
         ProgramProperties.put(IdParser.PROPERTIES_FIRST_WORD_IS_ACCESSION, options.getOption("-fwa", "firstWordIsAccession", "First word in reference header is accession number (set to 'true' for NCBI-nr downloaded Sep 2016 or later)", true));
         ProgramProperties.put(IdParser.PROPERTIES_ACCESSION_TAGS, options.getOption("-atags", "accessionTags", "List of accession tags", ProgramProperties.get(IdParser.PROPERTIES_ACCESSION_TAGS, IdParser.ACCESSION_TAGS)));
         options.done();
+
+        if(mapDBFile.length()>0 && (acc2TaxaFile.length() > 0 || synonyms2TaxaFile.length() > 0 || acc2KeggFile.length() > 0 || synonyms2KeggFile.length() > 0))
+            throw new UsageException("Illegal to use both --mapDB and ---acc2... or --syn2... options");
+
+        if(mapDBFile.length()>0)
+            ClassificationManager.setMeganMapDBFile(mapDBFile);
 
         if (topPercent == 0)
             topPercent = 0.0001f;
@@ -144,20 +149,18 @@ public class Blast2LCA {
             propertiesFile = System.getProperty("user.home") + File.separator + ".Megan.def";
         MeganProperties.initializeProperties(propertiesFile);
 
-        ProgramProperties.get("oneMatchPerTaxon", false);
-
         if (blastFormat.equalsIgnoreCase(BlastFileFormat.Unknown.toString())) {
             blastFormat = BlastFileFormat.detectFormat(null, blastFile, true).toString();
         }
         if (blastMode.equalsIgnoreCase(BlastMode.Unknown.toString()))
-            blastMode = BlastMode.detectMode(null, blastFile, false).toString();
+            blastMode = BlastModeUtils.detectMode(null, blastFile, false).toString();
 
         final IdMapper taxonIdMapper = ClassificationManager.get(Classification.Taxonomy, true).getIdMapper();
         // load taxonomy:
         {
             taxonIdMapper.setUseTextParsing(parseTaxonNames);
-            if (gi2TaxaFile.length() > 0) {
-                taxonIdMapper.loadMappingFile(gi2TaxaFile, IdMapper.MapType.GI, false, new ProgressPercentage());
+            if (mapDBFile.length() > 0) {
+                taxonIdMapper.loadMappingFile(mapDBFile, IdMapper.MapType.MeganMapDB, false, new ProgressPercentage());
             }
             if (acc2TaxaFile.length() > 0) {
                 taxonIdMapper.loadMappingFile(acc2TaxaFile, IdMapper.MapType.Accession, false, new ProgressPercentage());
@@ -167,8 +170,8 @@ public class Blast2LCA {
             }
             final IdMapper keggMapper = ClassificationManager.get("KEGG", true).getIdMapper();
             if (doKegg) {
-                if (gi2KeggFile.length() > 0) {
-                    keggMapper.loadMappingFile(gi2KeggFile, IdMapper.MapType.GI, false, new ProgressPercentage());
+                if (mapDBFile.length() > 0) {
+                    keggMapper.loadMappingFile(mapDBFile, IdMapper.MapType.MeganMapDB, false, new ProgressPercentage());
                 }
                 if (acc2KeggFile.length() > 0) {
                     keggMapper.loadMappingFile(acc2KeggFile, IdMapper.MapType.Accession, false, new ProgressPercentage());
@@ -184,7 +187,7 @@ public class Blast2LCA {
             System.err.println("Reading file: " + blastFile);
             System.err.println("Writing file: " + outputFile);
 
-            try (BlastFileReadBlockIterator it = new BlastFileReadBlockIterator(blastFile, null, BlastFileFormat.valueOfIgnoreCase(blastFormat), BlastMode.valueOfIgnoringCase(blastMode), new String[]{"Taxonomy", "KEGG"}, 100, longReads)) {
+            try (BlastFileReadBlockIterator it = new BlastFileReadBlockIterator(blastFile, null, BlastFileFormat.valueOfIgnoreCase(blastFormat), BlastMode.valueOfIgnoreCase(blastMode), new String[]{"Taxonomy", "KEGG"}, 100, longReads)) {
                 final ProgressPercentage progressListener = new ProgressPercentage();
                 progressListener.setMaximum(it.getMaximumProgress());
 

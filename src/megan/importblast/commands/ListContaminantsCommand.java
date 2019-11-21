@@ -19,12 +19,12 @@
 package megan.importblast.commands;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
 import megan.commands.CommandBase;
 import megan.core.ContaminantManager;
 import megan.dialogs.parameters.ParametersDialog;
-import megan.fx.NotificationsInSwing;
 import megan.importblast.ImportBlastDialog;
 
 import javax.swing.*;
@@ -103,7 +103,7 @@ public class ListContaminantsCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/About16.gif");
+        return ResourceManager.getIcon("sun/About16.gif");
     }
 
     /**

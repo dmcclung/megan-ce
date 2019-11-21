@@ -19,10 +19,10 @@
 
 package megan.classification.data;
 
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.CanceledException;
 import jloda.util.ProgressListener;
 import megan.data.IName2IdMap;
-import megan.fx.NotificationsInSwing;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class Accession2IdMapFactory implements IString2IntegerMapFactory {
      *
      * @param label2id option mapping of labels to ids
      * @param fileName file
-     * @param progress progress listner
+     * @param progress progress listener
      * @return map or null
      */
     @Override

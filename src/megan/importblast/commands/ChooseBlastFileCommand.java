@@ -19,8 +19,12 @@
 package megan.importblast.commands;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.*;
+import jloda.swing.util.BlastFileFilter;
+import jloda.swing.util.ChooseFileDialog;
+import jloda.swing.util.FastaFileFilter;
+import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.importblast.ImportBlastDialog;
 import megan.main.MeganProperties;
@@ -98,7 +102,7 @@ public class ChooseBlastFileCommand extends CommandBase implements ICommand {
             }
             importBlastDialog.getReadFileNameField().setText(importBlastDialog.getReadFileName());
 
-            final String fileName = (files.size() > 1 ? Basic.getCommonPrefix(files.toArray(new File[files.size()]), "out") : files.get(0).getName());
+            final String fileName = (files.size() > 1 ? Basic.getCommonPrefix(files.toArray(new File[0]), "out") : files.get(0).getName());
 
             final File meganFile = makeNewRMAFile(files.get(0).getParentFile(), fileName);
 
@@ -150,7 +154,7 @@ public class ChooseBlastFileCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Open16.gif");
+        return ResourceManager.getIcon("sun/Open16.gif");
     }
 
     /**

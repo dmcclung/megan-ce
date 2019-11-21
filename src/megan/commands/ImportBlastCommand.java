@@ -19,19 +19,20 @@
 package megan.commands;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
 import megan.core.*;
-import megan.fx.NotificationsInSwing;
 import megan.inspector.InspectorWindow;
 import megan.main.MeganProperties;
 import megan.parsers.blast.BlastFileFormat;
-import megan.parsers.blast.BlastMode;
+import megan.parsers.blast.BlastModeUtils;
 import megan.rma6.RMA6FromBlastCreator;
+import megan.util.ReadMagnitudeParser;
 import megan.viewer.MainViewer;
 import megan.viewer.TaxonomyData;
 
@@ -55,7 +56,7 @@ public class ImportBlastCommand extends CommandBase implements ICommand {
     public String getSyntax() {
         return "import blastFile=<name> [,<name>...] [fastaFile=<name> [,<name>...]] meganFile=<name> [useCompression={true|false}]\n" +
                 "\tformat={" + Basic.toString(BlastFileFormat.valuesExceptUnknown(), "|") + "}\n" +
-                "\tmode={" + Basic.toString(BlastMode.valuesExceptUnknown(), "|") + "} [maxMatches=<num>] [minScore=<num>] [maxExpected=<num>] [minPercentIdentity=<num>]\n" +
+                "\tmode={" + Basic.toString(BlastModeUtils.valuesExceptUnknown(), "|") + "} [maxMatches=<num>] [minScore=<num>] [maxExpected=<num>] [minPercentIdentity=<num>]\n" +
                 "\t[topPercent=<num>] [minSupportPercent=<num>] [minSupport=<num>] [weightedLCA={false|true}] [lcaCoveragePercent=<num>] [minPercentReadToCover=<num>] [minPercentReferenceToCover=<num>] [minComplexity=<num>] [useIdentityFilter={false|true}]\n" +
                 "\t[readAssignmentMode={" + Basic.toString(Document.ReadAssignmentMode.values(), "|") + "}] [fNames={" + Basic.toString(ClassificationManager.getAllSupportedClassifications(), "|") + "...} [longReads={false|true}] [paired={false|true} [pairSuffixLength={number}]]\n" +
                 "\t[contaminantsFile=<filename>] [description=<text>];";
@@ -128,7 +129,7 @@ public class ImportBlastCommand extends CommandBase implements ICommand {
 
             np.matchAnyTokenIgnoreCase("mode blastMode");
             np.matchIgnoreCase("=");
-            doc.setBlastMode(BlastMode.valueOfIgnoringCase(np.getWordMatchesIgnoringCase(Basic.toString(BlastMode.valuesExceptUnknown(), " "))));
+            doc.setBlastMode(BlastModeUtils.valueOfIgnoringCase(np.getWordMatchesIgnoringCase(Basic.toString(BlastModeUtils.valuesExceptUnknown(), " "))));
 
             int maxMatchesPerRead = 25;
             if (np.peekMatchIgnoreCase("maxMatches")) {
@@ -264,18 +265,18 @@ public class ImportBlastCommand extends CommandBase implements ICommand {
                     System.err.println("Deleting existing file: " + meganFile.getPath());
             }
 
-            final String[] blastFileNames = blastFiles.toArray(new String[blastFiles.size()]);
-            final String[] readFileNames = readsFiles.toArray(new String[readsFiles.size()]);
+            final String[] blastFileNames = blastFiles.toArray(new String[0]);
+            final String[] readFileNames = readsFiles.toArray(new String[0]);
+
+            ReadMagnitudeParser.setEnabled(doc.getReadAssignmentMode() == Document.ReadAssignmentMode.readMagnitude);
 
             doc.getMeganFile().setFile(meganFileName, MeganFile.Type.RMA6_FILE);
             RMA6FromBlastCreator rma6Creator = new RMA6FromBlastCreator(ProgramProperties.getProgramName(), format, doc.getBlastMode(),
                     blastFileNames, readFileNames, doc.getMeganFile().getFileName(), useCompression, doc, maxMatchesPerRead);
 
-
             rma6Creator.parseFiles(doc.getProgressListener());
 
             doc.loadMeganFile();
-
 
             if (description != null && description.length() > 0) {
                 description = description.replaceAll("^ +| +$|( )+", "$1"); // replace all white spaces by a single space
@@ -338,7 +339,7 @@ public class ImportBlastCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     /**

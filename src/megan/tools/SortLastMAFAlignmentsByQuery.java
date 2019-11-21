@@ -19,14 +19,14 @@
 package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.util.ResourceManager;
 import jloda.util.*;
+import megan.main.Megan6;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -42,6 +42,7 @@ public class SortLastMAFAlignmentsByQuery {
      */
     public static void main(String[] args) throws Exception {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("SortLastMAFAlignments");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -61,7 +62,7 @@ public class SortLastMAFAlignmentsByQuery {
      *
      * @param args
      */
-    public void run(String[] args) throws Exception {
+    private void run(String[] args) throws Exception {
         final ArgsOptions options = new ArgsOptions(args, this, "Sorts alignments in an MAF file by query");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
@@ -97,7 +98,7 @@ public class SortLastMAFAlignmentsByQuery {
         long alignmentsIn = 0;
         long alignmentsOut = 0;
 
-        try (FileInputIterator it = new FileInputIterator(lastMAFFile);
+        try (FileLineIterator it = new FileLineIterator(lastMAFFile);
              BufferedWriter w = new BufferedWriter(outputFile.equals("stdout") ? new OutputStreamWriter(System.out) : new OutputStreamWriter(Basic.getOutputStreamPossiblyZIPorGZIP(outputFile)))) {
 
             try (ProgressPercentage progress = new ProgressPercentage("Processing file: " + lastMAFFile)) {
@@ -154,18 +155,15 @@ public class SortLastMAFAlignmentsByQuery {
                     for (String readName : order[i]) {
                         ArrayList<byte[][]> alignments = readName2Alignments.get(readName);
                         if (alignments != null) {
-                            alignments.sort(new Comparator<byte[][]>() {
-                                @Override
-                                public int compare(byte[][] a, byte[][] b) {
-                                    final int scoreA = parseScoreFromA(a[0]);
-                                    final int scoreB = parseScoreFromA(b[0]);
-                                    if (scoreA > scoreB)
-                                        return -1;
-                                    else if (scoreA < scoreB)
-                                        return 1;
-                                    else
-                                        return 0;
-                                }
+                            alignments.sort((a, b) -> {
+                                final int scoreA = parseScoreFromA(a[0]);
+                                final int scoreB = parseScoreFromA(b[0]);
+                                if (scoreA > scoreB)
+                                    return -1;
+                                else if (scoreA < scoreB)
+                                    return 1;
+                                else
+                                    return 0;
                             });
                             for (byte[][] alignment : alignments) {
                                 for (byte[] line : alignment) {

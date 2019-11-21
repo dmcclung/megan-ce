@@ -19,8 +19,8 @@
 package megan.commands;
 
 import jloda.swing.commands.ICheckBoxCommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.util.ReadMagnitudeParser;
 
@@ -52,7 +52,7 @@ public class SetUseMagnitudeCommand extends megan.importblast.commands.CommandBa
         return true;
     }
 
-    public static final String NAME = "Use Magnitudes";
+    private static final String NAME = "Use Magnitudes";
 
     public String getName() {
         return NAME;
@@ -63,7 +63,7 @@ public class SetUseMagnitudeCommand extends megan.importblast.commands.CommandBa
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

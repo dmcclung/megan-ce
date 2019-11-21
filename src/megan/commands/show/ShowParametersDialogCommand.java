@@ -20,6 +20,7 @@ package megan.commands.show;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.IDirectableViewer;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
@@ -31,7 +32,6 @@ import megan.core.ContaminantManager;
 import megan.core.Document;
 import megan.dialogs.lrinspector.LRInspectorViewer;
 import megan.dialogs.parameters.ParametersDialog;
-import megan.fx.NotificationsInSwing;
 import megan.inspector.InspectorWindow;
 import megan.viewer.MainViewer;
 
@@ -143,12 +143,7 @@ public class ShowParametersDialogCommand extends CommandBase implements ICommand
 
         final InspectorWindow inspectorWindow = (InspectorWindow) getDir().getViewerByClass(InspectorWindow.class);
         if (inspectorWindow != null && inspectorWindow.getDataTree().getRowCount() > 1) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    inspectorWindow.clear();
-                }
-            });
+            SwingUtilities.invokeLater(() -> inspectorWindow.clear());
         }
 
         final ArrayList<LRInspectorViewer> toClose = new ArrayList<>();
@@ -157,14 +152,11 @@ public class ShowParametersDialogCommand extends CommandBase implements ICommand
                 toClose.add((LRInspectorViewer) viewer);
         }
         for (final IDirectableViewer viewer : toClose) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        viewer.destroyView();
-                    } catch (CanceledException e) {
-                        Basic.caught(e);
-                    }
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    viewer.destroyView();
+                } catch (CanceledException e) {
+                    Basic.caught(e);
                 }
             });
         }
@@ -202,11 +194,11 @@ public class ShowParametersDialogCommand extends CommandBase implements ICommand
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 }
 

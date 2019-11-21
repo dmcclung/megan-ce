@@ -20,15 +20,16 @@
 package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.util.ResourceManager;
 import jloda.util.*;
 import jloda.util.interval.Interval;
 import jloda.util.interval.IntervalTree;
-import malt.genes.GeneItem;
-import malt.genes.GeneItemCreator;
 import megan.classification.IdMapper;
+import megan.genes.GeneItem;
+import megan.genes.GeneItemCreator;
 import megan.io.IInputReader;
 import megan.io.InputReader;
+import megan.main.Megan6;
 
 import java.io.*;
 import java.util.*;
@@ -46,6 +47,7 @@ public class AAdderRun {
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("AAdderRun");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -63,7 +65,7 @@ public class AAdderRun {
     /**
      * run the program
      */
-    public void run(String[] args) throws CanceledException, IOException, UsageException {
+    private void run(String[] args) throws CanceledException, IOException, UsageException {
         final ArgsOptions options = new ArgsOptions(args, this, "Adds functional accessions to DNA alignments");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
@@ -102,7 +104,7 @@ public class AAdderRun {
             for (int t = 0; t < entries; t++) {
                 final String dnaId = ins.readString();
                 final long pos = ins.readLong();
-                ref2PosAndTree.put(dnaId, new Pair<Long, IntervalTree<GeneItem>>(pos, null));
+                ref2PosAndTree.put(dnaId, new Pair<>(pos, null));
                 progress.incrementProgress();
             }
         }
@@ -139,7 +141,7 @@ public class AAdderRun {
 
                 final Set<String> refNotFound = new HashSet<>();
 
-                try (final FileInputIterator it = new FileInputIterator(inputFile, true);
+                try (final FileLineIterator it = new FileLineIterator(inputFile, true);
                      final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(gzipOutput ? new GZIPOutputStream(new FileOutputStream(outputFile)) : new FileOutputStream(outputFile)))) {
                     System.err.println("Writing file: " + outputFile);
 
@@ -238,9 +240,9 @@ public class AAdderRun {
         }
     }
 
-    private static Pattern pattern = Pattern.compile("[0-9]+[MDN]+");
+    private static final Pattern pattern = Pattern.compile("[0-9]+[MDN]+");
 
-    public static int getRefLength(String cigar) {
+    private static int getRefLength(String cigar) {
         final Matcher matcher = pattern.matcher(cigar);
         final ArrayList<String> pairs = new ArrayList<>();
         while (matcher.find())

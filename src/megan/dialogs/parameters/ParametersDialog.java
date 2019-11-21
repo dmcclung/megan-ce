@@ -21,8 +21,9 @@ package megan.dialogs.parameters;
 import jloda.swing.commands.CommandManager;
 import jloda.swing.commands.ICheckBoxCommand;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.BlastMode;
+import jloda.util.ProgramProperties;
 import megan.classification.Classification;
 import megan.classification.ClassificationManager;
 import megan.classification.commandtemplates.SetUseLCA4ViewerCommand;
@@ -36,14 +37,12 @@ import megan.dialogs.parameters.commands.ChooseContaminantsFileCommand;
 import megan.dialogs.parameters.commands.UseContaminantFilterCommand;
 import megan.importblast.commands.ListContaminantsCommand;
 import megan.importblast.commands.SetUseIdentityFilterCommand;
-import megan.parsers.blast.BlastMode;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -54,7 +53,7 @@ import java.util.Set;
  * Daniel Huson, 8.2008, 4.2017
  */
 public class ParametersDialog extends JDialog {
-    final JTextField minScoreField = new JTextField(8);
+    private final JTextField minScoreField = new JTextField(8);
 
     private final JTextField topPercentField = new JTextField(8);
     private final JTextField maxExpectedField = new JTextField(8);
@@ -69,7 +68,7 @@ public class ParametersDialog extends JDialog {
 
     private final AbstractButton useContaminantsFilter;
     private final AbstractButton listContaminants;
-    private String contaminants;
+    private final String contaminants;
     private String contaminantsFileName;
 
     private final JComboBox<String> lcaAlgorithmComboBox = new JComboBox<>();
@@ -98,7 +97,7 @@ public class ParametersDialog extends JDialog {
         super();
 
         commandManager = new CommandManager(dir, this, new String[]{"megan.commands", "megan.dialogs.parameters.commands"}, !ProgramProperties.isUseGUI());
-        commandManager.addCommands(this, ClassificationCommandHelper.getImportBlastCommands(), true);
+        commandManager.addCommands(this, ClassificationCommandHelper.getImportBlastCommands(ClassificationManager.getAllSupportedClassifications()), true);
 
         setLocationRelativeTo(parent);
         setTitle("Change LCA Parameters - MEGAN");
@@ -189,7 +188,7 @@ public class ParametersDialog extends JDialog {
             final JPanel aPanel = new JPanel();
             aPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("LCA and analysis parameters:"), BorderFactory.createEmptyBorder(3, 10, 1, 10)));
 
-            final String[] cNames = ClassificationManager.getAllSupportedClassificationsExcludingNCBITaxonomy().toArray(new String[ClassificationManager.getAllSupportedClassificationsExcludingNCBITaxonomy().size()]);
+            final String[] cNames = ClassificationManager.getAllSupportedClassificationsExcludingNCBITaxonomy().toArray(new String[0]);
 
             aPanel.setLayout(new GridLayout(18 + (cNames.length + 1) / 2, 2));
 
@@ -361,16 +360,15 @@ public class ParametersDialog extends JDialog {
 
             aPanel.add(lcaAlgorithmComboBox);
             lcaAlgorithmComboBox.setToolTipText("Set the LCA algorithm to be used for taxonomic binning");
-            lcaAlgorithmComboBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (lcaAlgorithmComboBox.getSelectedItem() != null) {
-                        ProgramProperties.put("SelectedLCAAlgorithm", getLcaAlgorithm().toString());
-                        if (getLcaAlgorithm().equals(Document.LCAAlgorithm.naive))
-                            lcaCoveragePercent.setText("100");
-                        else
-                            lcaCoveragePercent.setText("80");
-                    }
+            lcaAlgorithmComboBox.addActionListener(e -> {
+                if (lcaAlgorithmComboBox.getSelectedItem() != null) {
+                    ProgramProperties.put("SelectedLCAAlgorithm", getLcaAlgorithm().toString());
+                    if (getLcaAlgorithm().equals(Document.LCAAlgorithm.naive))
+                        lcaCoveragePercent.setText("100");
+                    else
+                        lcaCoveragePercent.setText("80");
+                }
+                if(lcaAlgorithmComboBox.getSelectedItem()!=null) {
                     switch (Document.LCAAlgorithm.valueOfIgnoreCase(lcaAlgorithmComboBox.getSelectedItem().toString())) {
                         case naive:
                             lcaAlgorithmComboBox.setToolTipText("Naive LCA for taxonomic binning: fast algorithm applicable to short reads");
@@ -412,12 +410,11 @@ public class ParametersDialog extends JDialog {
 
             aPanel.add(readAssignmentModeComboBox);
             readAssignmentModeComboBox.setToolTipText("Read assignment mode: determines what is shown as number of assigned reads in taxonomy analysis");
-            readAssignmentModeComboBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (readAssignmentModeComboBox.getSelectedItem() != null) {
-                        ProgramProperties.put("ReadAssignmentModeComboBox", getReadAssignmentMode().toString());
-                    }
+            readAssignmentModeComboBox.addActionListener(e -> {
+                if (readAssignmentModeComboBox.getSelectedItem() != null) {
+                    ProgramProperties.put("ReadAssignmentModeComboBox", getReadAssignmentMode().toString());
+                }
+                if(readAssignmentModeComboBox.getSelectedItem()!=null) {
                     switch (Document.ReadAssignmentMode.valueOfIgnoreCase(readAssignmentModeComboBox.getSelectedItem().toString())) {
                         case readCount:
                             readAssignmentModeComboBox.setToolTipText("Display read counts as 'assigned reads' in taxonomy viewer");
@@ -437,6 +434,7 @@ public class ParametersDialog extends JDialog {
                 }
             });
 
+
             aPanel.add(new JLabel(" "));
             aPanel.add(new JLabel(" "));
 
@@ -446,12 +444,9 @@ public class ParametersDialog extends JDialog {
             aPanel.add(longReadsCBox);
             longReadsCBox.setToolTipText("Reads parsed as 'long reads'");
             longReadsCBox.setEnabled(doc.getConnector() instanceof DAAConnector); // can only change this if is DAA file because reads are sorted during
-            longReadsCBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    lcaAlgorithmComboBox.setSelectedItem(lcaAlgorithmComboBox.getItemAt(longReadsCBox.isSelected() ? 2 : 0));
-                    ProgramProperties.put("SelectedLCAAlgorithm", getLcaAlgorithm().toString());
-                }
+            longReadsCBox.addActionListener(e -> {
+                lcaAlgorithmComboBox.setSelectedItem(lcaAlgorithmComboBox.getItemAt(longReadsCBox.isSelected() ? 2 : 0));
+                ProgramProperties.put("SelectedLCAAlgorithm", getLcaAlgorithm().toString());
             });
 
             aPanel.add(usePercentIdentityCBox);
@@ -591,7 +586,7 @@ public class ParametersDialog extends JDialog {
         return panel;
     }
 
-    public double getMinScore() {
+    private double getMinScore() {
         double value = Document.DEFAULT_MINSCORE;
         try {
             value = Double.parseDouble(minScoreField.getText());
@@ -601,7 +596,7 @@ public class ParametersDialog extends JDialog {
         return value;
     }
 
-    public double getTopPercent() {
+    private double getTopPercent() {
         double value = Document.DEFAULT_TOPPERCENT;
         try {
             value = Double.parseDouble(topPercentField.getText());
@@ -611,7 +606,7 @@ public class ParametersDialog extends JDialog {
         return Math.max(0, Math.min(100, value));
     }
 
-    public double getMaxExpected() {
+    private double getMaxExpected() {
         double value = Document.DEFAULT_MAXEXPECTED;
         try {
             value = Double.parseDouble(maxExpectedField.getText());
@@ -621,7 +616,7 @@ public class ParametersDialog extends JDialog {
         return value;
     }
 
-    public double getMinComplexity() {
+    private double getMinComplexity() {
         double value = Document.DEFAULT_MINCOMPLEXITY;
         try {
             value = Double.parseDouble(minComplexityField.getText());
@@ -631,7 +626,7 @@ public class ParametersDialog extends JDialog {
         return value;
     }
 
-    public float getMinPercentIdentity() {
+    private float getMinPercentIdentity() {
         float value = Document.DEFAULT_MIN_PERCENT_IDENTITY;
         try {
             value = Float.parseFloat(minPercentIdentityField.getText());
@@ -641,19 +636,19 @@ public class ParametersDialog extends JDialog {
         return Math.max(0, Math.min(100, value));
     }
 
-    public void setMinScore(double value) {
+    private void setMinScore(double value) {
         minScoreField.setText("" + (float) value);
     }
 
-    public void setTopPercent(double value) {
+    private void setTopPercent(double value) {
         topPercentField.setText("" + (float) value);
     }
 
-    public void setMaxExpected(double value) {
+    private void setMaxExpected(double value) {
         maxExpectedField.setText("" + (float) value);
     }
 
-    public int getMinSupport() {
+    private int getMinSupport() {
         int value = Document.DEFAULT_MINSUPPORT;
         try {
             value = Integer.parseInt(minSupportField.getText());
@@ -663,11 +658,11 @@ public class ParametersDialog extends JDialog {
         return Math.max(1, value);
     }
 
-    public void setMinSupport(int value) {
+    private void setMinSupport(int value) {
         minSupportField.setText("" + Math.max(1, value));
     }
 
-    public float getMinSupportPercent() {
+    private float getMinSupportPercent() {
         float value = 0;
         try {
             value = Basic.parseFloat(minSupportPercentField.getText());
@@ -677,19 +672,19 @@ public class ParametersDialog extends JDialog {
         return Math.max(0, value);
     }
 
-    public void setMinSupportPercent(float value) {
+    private void setMinSupportPercent(float value) {
         minSupportPercentField.setText("" + Math.max(0f, value) + (value <= 0 ? " (off)" : ""));
     }
 
-    public void setMinComplexity(double value) {
+    private void setMinComplexity(double value) {
         minComplexityField.setText("" + (float) value);
     }
 
-    public void setMinPercentReadToCover(double value) {
+    private void setMinPercentReadToCover(double value) {
         minPercentReadToCoverField.setText("" + (float) value);
     }
 
-    public double getMinPercentReadToCover() {
+    private double getMinPercentReadToCover() {
         double value = Document.DEFAULT_MIN_PERCENT_READ_TO_COVER;
         try {
             value = Double.parseDouble(minPercentReadToCoverField.getText());
@@ -699,11 +694,11 @@ public class ParametersDialog extends JDialog {
         return Math.max(0, Math.min(100, value));
     }
 
-    public void setMinPercentReferenceToCover(double value) {
+    private void setMinPercentReferenceToCover(double value) {
         minPercentReferenceToCoverField.setText("" + (float) value);
     }
 
-    public double getMinPercentReferenceToCover() {
+    private double getMinPercentReferenceToCover() {
         double value = Document.DEFAULT_MIN_PERCENT_REFERENCE_TO_COVER;
         try {
             value = Double.parseDouble(minPercentReferenceToCoverField.getText());
@@ -713,51 +708,51 @@ public class ParametersDialog extends JDialog {
         return Math.max(0, Math.min(100, value));
     }
 
-    public void setMinPercentIdentity(double value) {
+    private void setMinPercentIdentity(double value) {
         minPercentIdentityField.setText("" + (float) value);
     }
 
-    public boolean isLongReads() {
+    private boolean isLongReads() {
         return longReadsCBox.isSelected();
     }
 
-    public void setLongReads(boolean longReads) {
+    private void setLongReads(boolean longReads) {
         longReadsCBox.setSelected(longReads);
     }
 
-    public boolean isPairedReads() {
+    private boolean isPairedReads() {
         return pairReadsCBox.isSelected();
     }
 
-    public void setPairedReads(boolean pairedReads) {
+    private void setPairedReads(boolean pairedReads) {
         pairReadsCBox.setSelected(pairedReads);
     }
 
-    public boolean isUsePercentIdentity() {
+    private boolean isUsePercentIdentity() {
         return usePercentIdentityCBox.isSelected();
     }
 
-    public void setUsePercentIdentity(boolean usePercentIdentity) {
+    private void setUsePercentIdentity(boolean usePercentIdentity) {
         usePercentIdentityCBox.setSelected(usePercentIdentity);
     }
 
-    public Document.LCAAlgorithm getLcaAlgorithm() {
+    private Document.LCAAlgorithm getLcaAlgorithm() {
         return Document.LCAAlgorithm.valueOf((String) lcaAlgorithmComboBox.getSelectedItem());
     }
 
-    public void setLcaAlgorithm(Document.LCAAlgorithm lcaAlgorithm) {
+    private void setLcaAlgorithm(Document.LCAAlgorithm lcaAlgorithm) {
         lcaAlgorithmComboBox.setSelectedItem(lcaAlgorithm.toString());
     }
 
-    public Document.ReadAssignmentMode getReadAssignmentMode() {
+    private Document.ReadAssignmentMode getReadAssignmentMode() {
         return Document.ReadAssignmentMode.valueOf((String) readAssignmentModeComboBox.getSelectedItem());
     }
 
-    public void setReadAssignmentMode(Document.ReadAssignmentMode readAssignmentMode) {
+    private void setReadAssignmentMode(Document.ReadAssignmentMode readAssignmentMode) {
         readAssignmentModeComboBox.setSelectedItem(readAssignmentMode.toString());
     }
 
-    public float getLCACoveragePercent() {
+    private float getLCACoveragePercent() {
         float value = Document.DEFAULT_LCA_COVERAGE_PERCENT;
         try {
             value = Basic.parseFloat(lcaCoveragePercent.getText());
@@ -767,7 +762,7 @@ public class ParametersDialog extends JDialog {
         return Math.min(100, Math.max(0, value));
     }
 
-    public void setWeightedLCAPercent(float value) {
+    private void setWeightedLCAPercent(float value) {
         lcaCoveragePercent.setText("" + Math.max(0f, value) + (value <= 0 ? " (off)" : ""));
     }
 
@@ -798,7 +793,7 @@ public class ParametersDialog extends JDialog {
                 + " fNames=" + Basic.toString(activeFNames, " ");
     }
 
-    public boolean isCanceled() {
+    private boolean isCanceled() {
         return canceled;
     }
 

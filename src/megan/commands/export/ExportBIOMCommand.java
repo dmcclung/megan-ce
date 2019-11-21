@@ -19,10 +19,11 @@
 package megan.commands.export;
 
 import jloda.swing.commands.ICommand;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.biom.biom1.Biom1ExportFViewer;
 import megan.biom.biom1.Biom1ExportTaxonomy;
@@ -31,7 +32,6 @@ import megan.classification.ClassificationManager;
 import megan.commands.CommandBase;
 import megan.core.Director;
 import megan.core.Document;
-import megan.fx.NotificationsInSwing;
 import megan.util.BiomFileFilter;
 import megan.viewer.ClassificationViewer;
 import megan.viewer.MainViewer;
@@ -107,7 +107,7 @@ public class ExportBIOMCommand extends CommandBase implements ICommand {
                     officialRanksOnly = true;
             }
         } else if (getViewer() instanceof ClassificationViewer)
-            choice = ((ClassificationViewer) getViewer()).getClassName();
+            choice = getViewer().getClassName();
         else
             return;
 
@@ -135,7 +135,7 @@ public class ExportBIOMCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Export16.gif");
+        return ResourceManager.getIcon("sun/Export16.gif");
     }
 
     public String getDescription() {

@@ -21,16 +21,16 @@ package megan.commands;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
 import jloda.swing.director.ProjectManager;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
 import jloda.util.Pair;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.core.Document;
-import megan.fx.NotificationsInSwing;
 import megan.main.MeganProperties;
 import megan.samplesviewer.SamplesViewer;
 import megan.util.MeganAndRMAFileFilter;
@@ -84,7 +84,7 @@ public class AddSampleFromFileCommand extends CommandBase implements ICommand {
 
         final SamplesViewer samplesViewer = (SamplesViewer) getDir().getViewerByClass(SamplesViewer.class);
         if (samplesViewer != null)
-            samplesViewer.getSamplesTable().getDataGrid().save(samplesViewer.getSampleAttributeTable(), null);
+            samplesViewer.getSamplesTableView().syncFromViewToDocument();
 
         LinkedList<String> skipped = new LinkedList<>();
         Document doc = ((Director) getDir()).getDocument();
@@ -153,7 +153,7 @@ public class AddSampleFromFileCommand extends CommandBase implements ICommand {
         if (count > 0) {
             doc.setDirty(true);
             if (samplesViewer != null)
-                samplesViewer.getSamplesTable().getDataGrid().load(doc.getSampleAttributeTable());
+                samplesViewer.getSamplesTableView().syncFromDocumentToView();
             try {
                 doc.processReadHits();
                 NotificationsInSwing.showInformation(getViewer().getFrame(), String.format("Added %d reads to file '%s'", count, doc.getMeganFile().getName()));
@@ -171,13 +171,13 @@ public class AddSampleFromFileCommand extends CommandBase implements ICommand {
         List<File> files = ChooseFileDialog.chooseFilesToOpen(getViewer().getFrame(), lastOpenFile, new MeganAndRMAFileFilter(), new MeganAndRMAFileFilter(), event, "Open MEGAN file to add");
         getDir().notifyUnlockInput();
 
-        if (files != null && files.size() > 0) {
-            String command = "addSample";
+        if (files.size() > 0) {
+            StringBuilder command = new StringBuilder("addSample");
             for (File file : files) {
-                command += " source='" + file.getPath() + "'";
+                command.append(" source='").append(file.getPath()).append("'");
             }
-            command += ";";
-            execute(command);
+            command.append(";");
+            execute(command.toString());
             ProgramProperties.put(MeganProperties.MEGANFILE, files.iterator().next().getAbsolutePath());
         }
     }
@@ -199,7 +199,7 @@ public class AddSampleFromFileCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     public boolean isCritical() {

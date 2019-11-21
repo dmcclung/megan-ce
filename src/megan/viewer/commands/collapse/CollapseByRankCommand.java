@@ -19,12 +19,12 @@
 package megan.viewer.commands.collapse;
 
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.classification.ClassificationManager;
 import megan.commands.CommandBase;
-import megan.fx.NotificationsInSwing;
 import megan.util.CallBack;
 import megan.util.PopupChoice;
 import megan.viewer.ClassificationViewer;
@@ -75,14 +75,14 @@ public class CollapseByRankCommand extends CommandBase implements ICommand {
     }
 
     public void actionPerformed(ActionEvent event) {
-        final String[] ranks = TaxonomicLevels.getAllMajorRanks().toArray(new String[TaxonomicLevels.getAllMajorRanks().size()]);
+        final String[] ranks = TaxonomicLevels.getAllMajorRanks().toArray(new String[0]);
 
         String choice = null;
         if (getViewer() instanceof MainViewer) {
             choice = ((MainViewer) getViewer()).getPOWEREDBY();
         }
 
-        PopupChoice<String> popupChoice = new PopupChoice<>(ranks, choice, new CallBack<String>() {
+        PopupChoice<String> popupChoice = new PopupChoice<>(ranks, choice, new CallBack<>() {
             @Override
             public void call(String choice) {
                 execute("collapse rank='" + choice + "';select rank='" + choice + "';");

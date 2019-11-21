@@ -20,8 +20,8 @@ package megan.chart.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICheckBoxCommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.chart.TaxaChart;
 import megan.chart.data.IChartData;
@@ -32,7 +32,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class ColorByRankCommand extends CommandBase implements ICheckBoxCommand {
-    private String[] ranks = new String[]{TaxonomicLevels.Domain, TaxonomicLevels.Phylum, TaxonomicLevels.Class,
+    private final String[] ranks = new String[]{TaxonomicLevels.Domain, TaxonomicLevels.Phylum, TaxonomicLevels.Class,
             TaxonomicLevels.Order, TaxonomicLevels.Family, TaxonomicLevels.Genus, TaxonomicLevels.Species, "None"};
 
     @Override
@@ -79,7 +79,7 @@ public class ColorByRankCommand extends CommandBase implements ICheckBoxCommand 
         return chartViewer != null && chartViewer.getChartDrawer() != null && chartViewer.getChartDrawer().canColorByRank() && chartViewer.getChartData() instanceof IChartData && chartViewer instanceof TaxaChart;
     }
 
-    public static String NAME = "Color Taxa by Rank...";
+    public static final String NAME = "Color Taxa by Rank...";
 
     public String getName() {
         return NAME;

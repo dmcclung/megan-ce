@@ -18,7 +18,6 @@
  */
 package megan.alignment;
 
-import jloda.swing.util.ProgramProperties;
 import jloda.util.*;
 import megan.alignment.gui.Alignment;
 import megan.alignment.gui.Lane;
@@ -100,11 +99,7 @@ public class AlignmentExporter {
                         String key = Basic.getFirstLine(matchBlock.getText());
                         if (!matchesSeenForGivenRead.contains(key)) {
                             matchesSeenForGivenRead.add(key);
-                            List<Pair<IReadBlock, IMatchBlock>> pairs = reference2ReadMatchPairs.get(key);
-                            if (pairs == null) {
-                                pairs = new LinkedList<>();
-                                reference2ReadMatchPairs.put(key, pairs);
-                            }
+                            List<Pair<IReadBlock, IMatchBlock>> pairs = reference2ReadMatchPairs.computeIfAbsent(key, k -> new LinkedList<>());
                             pairs.add(new Pair<>(readBlock, matchBlock));
                             readUsed = true;
                         }
@@ -158,11 +153,7 @@ public class AlignmentExporter {
                             if (!matchesSeenForGivenRead.contains(key)) {
                                 matchesSeenForGivenRead.add(key);
 
-                                List<Pair<IReadBlock, IMatchBlock>> pairs = reference2ReadMatchPairs.get(key);
-                                if (pairs == null) {
-                                    pairs = new LinkedList<>();
-                                    reference2ReadMatchPairs.put(key, pairs);
-                                }
+                                List<Pair<IReadBlock, IMatchBlock>> pairs = reference2ReadMatchPairs.computeIfAbsent(key, k -> new LinkedList<>());
                                 pairs.add(new Pair<>(readBlock, matchBlock));
                                 readUsed = true;
                             }
@@ -230,15 +221,13 @@ public class AlignmentExporter {
 
         // sort data by decreasing number of reads associated with a given reference sequence
         final SortedSet<Pair<String, List<Pair<IReadBlock, IMatchBlock>>>> sorted =
-                new TreeSet<>(new Comparator<Pair<String, List<Pair<IReadBlock, IMatchBlock>>>>() {
-                    public int compare(Pair<String, List<Pair<IReadBlock, IMatchBlock>>> pair1, Pair<String, List<Pair<IReadBlock, IMatchBlock>>> pair2) {
-                        if (pair1.getSecond().size() > pair2.getSecond().size())
-                            return -1;
-                        else if (pair1.getSecond().size() < pair2.getSecond().size())
-                            return 1;
-                        else
-                            return pair1.getFirst().compareTo(pair2.getFirst());
-                    }
+                new TreeSet<>((pair1, pair2) -> {
+                    if (pair1.getSecond().size() > pair2.getSecond().size())
+                        return -1;
+                    else if (pair1.getSecond().size() < pair2.getSecond().size())
+                        return 1;
+                    else
+                        return pair1.getFirst().compareTo(pair2.getFirst());
                 });
         for (String reference : reference2ReadMatchPairs.keySet()) {
             List<Pair<IReadBlock, IMatchBlock>> value = reference2ReadMatchPairs.get(reference);
@@ -307,7 +296,8 @@ public class AlignmentExporter {
                 if ((new File(fileName)).exists()) {
                     if (!warned) {
                         if (ProgramProperties.isUseGUI()) {
-                            int result = JOptionPane.showConfirmDialog(parent, "Some files already exist, overwrite all existing files?", "Overwrite files?", JOptionPane.YES_NO_CANCEL_OPTION);
+                            int result = JOptionPane.showConfirmDialog(parent, "Some files already exist, overwrite all existing files?", "Overwrite files?", JOptionPane.YES_NO_CANCEL_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE, ProgramProperties.getProgramIcon());
                             switch (result) {
                                 case JOptionPane.NO_OPTION:
                                     overwrite = false;

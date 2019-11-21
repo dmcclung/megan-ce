@@ -20,9 +20,9 @@ package megan.commands;
 
 import jloda.swing.commands.ICommand;
 import jloda.swing.util.ChooseFileDialog;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.biom.biom1.BIOM1Importer;
 import megan.biom.biom2.Biom2Importer;
@@ -114,7 +114,7 @@ public class ImportBIOMCommand extends CommandBase implements ICommand {
 
         final List<File> files = ChooseFileDialog.chooseFilesToOpen(getViewer().getFrame(), lastOpenFile, new BiomFileFilter(), new BiomFileFilter(), event, "Open BIOM file(s)");
 
-        if (files != null && files.size() > 0) {
+        if (files.size() > 0) {
 
             final String[] choices = new String[]{"Taxonomy", "KEGG", "SEED", "Unknown"};
             final String[] taxonomyAssignmentAlgorithm = new String[]{"Match taxonomic path (more conservative)", "Match most specific node (more specific)"};
@@ -171,7 +171,7 @@ public class ImportBIOMCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Import16.gif");
+        return ResourceManager.getIcon("sun/Import16.gif");
     }
 
     public String getDescription() {

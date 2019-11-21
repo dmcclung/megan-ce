@@ -18,14 +18,11 @@
  */
 package megan.rma6;
 
-import jloda.util.Basic;
-import jloda.util.FileIterator;
-import jloda.util.ICloseableIterator;
-import jloda.util.Single;
+import jloda.util.*;
 import megan.classification.ClassificationManager;
 import megan.classification.IdParser;
 import megan.parsers.blast.BlastFileFormat;
-import megan.parsers.blast.BlastMode;
+import megan.parsers.blast.BlastModeUtils;
 import megan.parsers.blast.ISAMIterator;
 import megan.parsers.blast.IteratorManager;
 import megan.parsers.sam.SAMMatch;
@@ -46,7 +43,7 @@ public class BlastFileReadBlockIterator implements Iterator<ReadBlockRMA6>, IClo
     private final IdParser[] parsers;
 
     private final ISAMIterator iterator;
-    private final FileIterator fastaIterator;
+    private final FileLineBytesIterator fastaIterator;
     private final boolean isFasta;
     private final byte[] queryName = new byte[100000];
     private final Single<byte[]> fastAText = new Single<>(new byte[1000]);
@@ -73,13 +70,13 @@ public class BlastFileReadBlockIterator implements Iterator<ReadBlockRMA6>, IClo
             format = BlastFileFormat.detectFormat(null, blastFile, false);
         }
         if (blastMode == BlastMode.Unknown) {
-            blastMode = BlastMode.detectMode(null, blastFile, false);
+            blastMode = BlastModeUtils.detectMode(null, blastFile, false);
         }
         this.blastMode = blastMode;
 
         iterator = IteratorManager.getIterator(blastFile, format, blastMode, maxMatchesPerRead, longReads);
         if (readsFile != null) {
-            fastaIterator = new FileIterator(readsFile);
+            fastaIterator = new FileLineBytesIterator(readsFile);
             isFasta = (fastaIterator.peekNextByte() == '>');
             if (!isFasta && (fastaIterator.peekNextByte() != '@'))
                 throw new IOException("Cannot determine type of reads file (doesn't start with '>' or '@");

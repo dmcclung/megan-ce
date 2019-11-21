@@ -20,8 +20,8 @@ package megan.inspector.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import jloda.util.ProgressListener;
 import jloda.util.Single;
 import jloda.util.parse.NexusStreamParser;
@@ -73,21 +73,19 @@ public class ShowReadsCommand extends CommandBase implements ICommand {
         try (IReadBlockIterator it = doc.getConnector().getFindAllReadsIterator(regExpression, findSelection, canceled)) {
             progress.setMaximum(it.getMaximumProgress());
             final ExecutorService executor = Executors.newFixedThreadPool(1);
-            executor.submit(new Runnable() {
-                public void run() {
-                    try {
-                        while (!canceled.get()) {
-                            progress.setProgress(it.getProgress());
-                            Thread.sleep(100);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (CanceledException ex) {
-                        System.err.println("USER CANCELED EXECUTE");
-                    } finally {
-                        canceled.set(true);
-                        executor.shutdownNow();
+            executor.submit(() -> {
+                try {
+                    while (!canceled.get()) {
+                        progress.setProgress(it.getProgress());
+                        Thread.sleep(100);
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (CanceledException ex) {
+                    System.err.println("USER CANCELED EXECUTE");
+                } finally {
+                    canceled.set(true);
+                    executor.shutdownNow();
                 }
             });
 
@@ -132,7 +130,7 @@ public class ShowReadsCommand extends CommandBase implements ICommand {
         }
     }
 
-    public static final String NAME = "Show Reads...";
+    private static final String NAME = "Show Reads...";
 
     public String getName() {
         return NAME;
@@ -163,7 +161,7 @@ public class ShowReadsCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

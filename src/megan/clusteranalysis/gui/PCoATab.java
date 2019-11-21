@@ -27,6 +27,7 @@ import jloda.swing.find.IObjectSearcher;
 import jloda.swing.find.NodeLabelSearcher;
 import jloda.swing.find.SearchManager;
 import jloda.swing.graphview.*;
+import jloda.swing.window.NotificationsInSwing;
 import jloda.swing.util.PopupMenu;
 import jloda.swing.util.*;
 import jloda.util.*;
@@ -40,7 +41,6 @@ import megan.clusteranalysis.pcoa.geom3d.Matrix3D;
 import megan.clusteranalysis.pcoa.geom3d.Vector3D;
 import megan.clusteranalysis.tree.Distances;
 import megan.clusteranalysis.tree.Taxa;
-import megan.fx.NotificationsInSwing;
 import megan.viewer.MainViewer;
 import megan.viewer.ViewerBase;
 
@@ -69,8 +69,8 @@ public class PCoATab extends JPanel implements ITab {
     private int secondPC = 1;
     private int thirdPC = 2;
 
-    boolean flipH = false;
-    boolean flipV = false;
+    private boolean flipH = false;
+    private boolean flipV = false;
 
     private boolean showAxes = ProgramProperties.get("ShowPCoAAxes", true);
 
@@ -152,11 +152,9 @@ public class PCoATab extends JPanel implements ITab {
                 if (size.getWidth() == 0 || size.getHeight() == 0) {
                     try {
 
-                        Runnable runnable = new Runnable() {
-                            public void run() {
-                                PCoATab.this.validate();
-                                getScrollPane().validate();
-                            }
+                        Runnable runnable = () -> {
+                            PCoATab.this.validate();
+                            getScrollPane().validate();
                         };
                         if (SwingUtilities.isEventDispatchThread()) {
                             //System.err.println("RUN");
@@ -237,7 +235,7 @@ public class PCoATab extends JPanel implements ITab {
 
         transformation3D = new Matrix3D();
         node2vector = new NodeArray<>(graph);
-        node2point3D = new NodeArray<Point3D>(graph);
+        node2point3D = new NodeArray<>(graph);
         setLayout(new BorderLayout());
         add(graphView.getScrollPane(), BorderLayout.CENTER);
 
@@ -249,11 +247,7 @@ public class PCoATab extends JPanel implements ITab {
 
         graphView.trans.removeAllChangeListeners();
 
-        graphView.trans.addChangeListener(new ITransformChangeListener() {
-            public void hasChanged(Transform trans) {
-                graphView.recomputeMargins();
-            }
-        });
+        graphView.trans.addChangeListener(trans -> graphView.recomputeMargins());
 
         graphView.getScrollPane().addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent event) {
@@ -328,12 +322,9 @@ public class PCoATab extends JPanel implements ITab {
 
         final JPopupMenu panelPopupMenu = new PopupMenu(this, GUIConfiguration.getPanelPopupConfiguration(), parent.getCommandManager());
 
-        graphView.addPanelActionListener(new PanelActionListener() {
-            @Override
-            public void doMouseClicked(MouseEvent mouseEvent) {
-                if (mouseEvent.isPopupTrigger()) {
-                    panelPopupMenu.show(PCoATab.this, mouseEvent.getX(), mouseEvent.getY());
-                }
+        graphView.addPanelActionListener(mouseEvent -> {
+            if (mouseEvent.isPopupTrigger()) {
+                panelPopupMenu.show(PCoATab.this, mouseEvent.getX(), mouseEvent.getY());
             }
         });
 
@@ -487,7 +478,7 @@ public class PCoATab extends JPanel implements ITab {
                 graphView.setLocation(v, (flipH ? -1 : 1) * COORDINATES_SCALE_FACTOR * coordinates[0],
                         (flipV ? -1 : 1) * COORDINATES_SCALE_FACTOR * coordinates[1]);
                 // nv.setLabelLayoutFromAngle(Geometry.computeAngle(nv.getLocation()));
-                final double z = coordinates.length >= 2 ? COORDINATES_SCALE_FACTOR * coordinates[2] : 0;
+                final double z = COORDINATES_SCALE_FACTOR * coordinates[2];
                 node2vector.put(v, new Vector3D(graphView.getLocation(v).getX(), graphView.getLocation(v).getY(), z));
                 node2point3D.put(v, new Point3D(graphView.getLocation(v).getX(), graphView.getLocation(v).getY(), z));
 
@@ -585,9 +576,20 @@ public class PCoATab extends JPanel implements ITab {
             computeBiPlotVectors(biplotSize);
 
         for (Node v : biplotNodes) {
-            graph.setHidden(v, !showBiPlot);
+            if (showBiPlot) {
+                graph.setHidden(v, false);
+                graphView.getNV(v).setLabelVisible(true);
+                graphView.getNV(v).setShape(NodeView.OVAL_NODE);
+            } else {
+                graphView.getNV(v).setLabelVisible(false);
+                graphView.getNV(v).setShape(NodeView.NONE_NODE);
+                graph.setHidden(v, true);
+            }
         }
         for (Edge e : biplotEdges) {
+            if (!showBiPlot) {
+                graphView.getEV(e).setLineWidth((byte) 0);
+            }
             graph.setHidden(e, !showBiPlot);
         }
     }
@@ -603,9 +605,20 @@ public class PCoATab extends JPanel implements ITab {
             computeTriPlotVectors(triplotSize);
 
         for (Node v : triplotNodes) {
-            graph.setHidden(v, !showTriPlot);
+            if (showTriPlot) {
+                graph.setHidden(v, false);
+                graphView.getNV(v).setLabelVisible(true);
+                graphView.getNV(v).setShape(NodeView.OVAL_NODE);
+            } else {
+                graphView.getNV(v).setLabelVisible(false);
+                graphView.getNV(v).setShape(NodeView.NONE_NODE);
+                graph.setHidden(v, true);
+            }
         }
         for (Edge e : triplotEdges) {
+            if (!showTriPlot) {
+                graphView.getEV(e).setLineWidth((byte) 0);
+            }
             graph.setHidden(e, !showTriPlot);
         }
     }
@@ -647,8 +660,11 @@ public class PCoATab extends JPanel implements ITab {
         ProgramProperties.put("ShowGroupsAsConvexHulls", showGroupsAsConvexHulls);
         for (Iterator<Edge> it = graph.edgeIteratorIncludingHidden(); it.hasNext(); ) {
             Edge e = it.next();
-            if (convexHullEdges.contains(e))
+            if (convexHullEdges.contains(e)) {
+                graphView.getEV(e).setLineWidth(showGroupsAsConvexHulls ? (byte) 1 : (byte) 0);
                 graph.setHidden(e, !showGroupsAsConvexHulls);
+                // graph.setWeight(e,showGroupsAsConvexHulls?1:0);
+            }
         }
     }
 
@@ -823,18 +839,15 @@ public class PCoATab extends JPanel implements ITab {
                 final double z = (thirdPC < pair.getSecond().length ? pair.getSecond()[thirdPC] : 0);
                 biplot[i] = new Pair<>(pair.getFirst(), new double[]{x, y, z});
             }
-            Arrays.sort(biplot, new Comparator<Pair<String, double[]>>() {
-                @Override
-                public int compare(Pair<String, double[]> a, Pair<String, double[]> b) {
-                    double aSquaredLength = Utilities.getSquaredLength(a.getSecond());
-                    double bSquaredLength = Utilities.getSquaredLength(b.getSecond());
-                    if (aSquaredLength > bSquaredLength)
-                        return -1;
-                    else if (aSquaredLength < bSquaredLength)
-                        return 1;
-                    else
-                        return a.getFirst().compareTo(b.getFirst());
-                }
+            Arrays.sort(biplot, (a, b) -> {
+                double aSquaredLength = Utilities.getSquaredLength(a.getSecond());
+                double bSquaredLength = Utilities.getSquaredLength(b.getSecond());
+                if (aSquaredLength > bSquaredLength)
+                    return -1;
+                else if (aSquaredLength < bSquaredLength)
+                    return 1;
+                else
+                    return a.getFirst().compareTo(b.getFirst());
             });
 
             double scaleFactor = computeLoadingsScaleFactor(biplot[0].getSecond());
@@ -848,6 +861,7 @@ public class PCoATab extends JPanel implements ITab {
                 biplotNodes.add(v);
                 graph.setLabel(v, pair.getFirst());
                 graphView.setLabel(v, pair.getFirst());
+                graphView.setLabelVisible(v, isShowBiPlot());
                 final NodeView nv = graphView.getNV(v);
                 nv.setLocation(x, y);
                 node2vector.put(v, new Vector3D(x, y, z));
@@ -860,7 +874,7 @@ public class PCoATab extends JPanel implements ITab {
                 final EdgeView ev = graphView.getEV(e);
                 ev.setDirection(EdgeView.DIRECTED);
                 ev.setColor(getBiPlotColor());
-                ev.setLineWidth((byte) getBiPlotLineWidth());
+                ev.setLineWidth(getBiPlotLineWidth());
                 graph.setInfo(e, EdgeView.DIRECTED);
             }
         }
@@ -895,18 +909,15 @@ public class PCoATab extends JPanel implements ITab {
                 final double z = (thirdPC < pair.getSecond().length ? pair.getSecond()[thirdPC] : 0);
                 triplot[i] = new Pair<>(pair.getFirst(), new double[]{x, y, z});
             }
-            Arrays.sort(triplot, new Comparator<Pair<String, double[]>>() {
-                @Override
-                public int compare(Pair<String, double[]> a, Pair<String, double[]> b) {
-                    double aSquaredLength = Utilities.getSquaredLength(a.getSecond());
-                    double bSquaredLength = Utilities.getSquaredLength(b.getSecond());
-                    if (aSquaredLength > bSquaredLength)
-                        return -1;
-                    else if (aSquaredLength < bSquaredLength)
-                        return 1;
-                    else
-                        return a.getFirst().compareTo(b.getFirst());
-                }
+            Arrays.sort(triplot, (a, b) -> {
+                double aSquaredLength = Utilities.getSquaredLength(a.getSecond());
+                double bSquaredLength = Utilities.getSquaredLength(b.getSecond());
+                if (aSquaredLength > bSquaredLength)
+                    return -1;
+                else if (aSquaredLength < bSquaredLength)
+                    return 1;
+                else
+                    return a.getFirst().compareTo(b.getFirst());
             });
 
             double scaleFactor = computeLoadingsScaleFactor(triplot[0].getSecond());
@@ -920,6 +931,7 @@ public class PCoATab extends JPanel implements ITab {
                 triplotNodes.add(v);
                 graph.setLabel(v, pair.getFirst());
                 graphView.setLabel(v, pair.getFirst());
+                graphView.setLabelVisible(v, isShowTriPlot());
                 final NodeView nv = graphView.getNV(v);
                 nv.setLocation(x, y);
                 node2vector.put(v, new Vector3D(x, y, z));
@@ -948,7 +960,7 @@ public class PCoATab extends JPanel implements ITab {
      */
     public void updateTransform(boolean draw3D) {
         if (draw3D) {
-            final SortedSet<Pair<Double, Node>> pairs = new TreeSet<>(new Pair<Double, Node>());
+            final SortedSet<Pair<Double, Node>> pairs = new TreeSet<>(new Pair<>());
 
             for (Iterator<Node> it = graph.nodeIteratorIncludingHidden(); it.hasNext(); ) {
                 final Node v = it.next();
@@ -1003,7 +1015,7 @@ public class PCoATab extends JPanel implements ITab {
     /**
      * draws a centerAndScale bar
      */
-    protected void drawScaleBar(GraphView graphView, Graphics2D gc, Rectangle rect) {
+    private void drawScaleBar(GraphView graphView, Graphics2D gc, Rectangle rect) {
         final Font oldFont = gc.getFont();
         try {
             if (pcoa.isDone() && pcoa.getNumberOfPositiveEigenValues() >= 2) {
@@ -1160,7 +1172,7 @@ public class PCoATab extends JPanel implements ITab {
         gc.setFont(oldFont);
     }
 
-    public String getTitle2D() {
+    private String getTitle2D() {
         return String.format("PCoA of %s using %s: PC %d (%.1f%%) vs PC %d (%.1f%%)",
                 clusterViewer.getDataType(), clusterViewer.getEcologicalIndex(), (firstPC + 1), pcoa.getPercentExplained(firstPC), (secondPC + 1),
                 pcoa.getPercentExplained(secondPC));
@@ -1179,7 +1191,7 @@ public class PCoATab extends JPanel implements ITab {
      * @param vp Point
      * @param wp Point
      */
-    public static void drawArrowHead(Graphics gc, Point vp, Point wp) {
+    private static void drawArrowHead(Graphics gc, Point vp, Point wp) {
         final Point diff = new Point(wp.x - vp.x, wp.y - vp.y);
         if (diff.x != 0 || diff.y != 0) {
             final int arrowLength = 5;
@@ -1247,12 +1259,16 @@ public class PCoATab extends JPanel implements ITab {
     }
 
     public boolean isSampleNode(Node v) {
-        return !biplotNodes.contains(v) && !triplotNodes.contains(v) && getGraphView().getLabel(v) != null
-                && getGraphView().getLabel(v).trim().length() > 0;
+        final NodeView nv = graphView.getNV(v);
+        return nv.getLabel() != null && !biplotNodes.contains(v) && !triplotNodes.contains(v) && nv.getLabel().length() > 0;
     }
 
     public boolean isBiplotNode(Node v) {
         return biplotNodes.contains(v);
+    }
+
+    public boolean isTriplotNode(Node v) {
+        return triplotNodes.contains(v);
     }
 
     public Point3D getPoint3D(Node v) {
@@ -1318,7 +1334,7 @@ public class PCoATab extends JPanel implements ITab {
         return graph.getNumberOfNodes() == 0;
     }
 
-    class PointNode extends Point2D.Double {
+    static class PointNode extends Point2D.Double {
         private final Node v;
 
         public PointNode(double x, double y, Node v) {

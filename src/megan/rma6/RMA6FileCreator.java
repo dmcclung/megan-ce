@@ -19,9 +19,9 @@
 
 package megan.rma6;
 
+import jloda.util.BlastMode;
 import jloda.util.ListOfLongs;
 import megan.io.OutputWriter;
-import megan.parsers.blast.BlastMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class RMA6FileCreator extends RMA6File {
     private boolean isPairedReads;
-    private boolean useCompression;
+    private final boolean useCompression;
 
     private int numberOfClassificationNames;
 

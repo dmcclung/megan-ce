@@ -20,7 +20,7 @@ package megan.alignment.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICheckBoxCommand;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentViewer;
 
@@ -75,7 +75,7 @@ public class SetColorMatchesVsReferenceCommand extends CommandBase implements IC
         execute("set colorMatchesVsReference=" + (!isSelected()) + ";");
     }
 
-    public static final String NAME = "Matches Vs Reference";
+    private static final String NAME = "Matches Vs Reference";
 
     public String getName() {
         return NAME;

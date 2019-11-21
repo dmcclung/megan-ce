@@ -75,7 +75,7 @@ public class ShowAminoAcidsCommand extends CommandBase implements ICheckBoxComma
         execute("set showAminoAcids=true;");
     }
 
-    public static final String NAME = "Show Amino Acids";
+    private static final String NAME = "Show Amino Acids";
 
     public String getName() {
         return NAME;

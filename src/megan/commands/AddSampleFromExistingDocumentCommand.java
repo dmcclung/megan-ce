@@ -96,7 +96,7 @@ public class AddSampleFromExistingDocumentCommand extends CommandBase implements
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     private int loadList(JList list) {
@@ -164,11 +164,7 @@ public class AddSampleFromExistingDocumentCommand extends CommandBase implements
             bottom.add(applyButton);
             mainPanel.add(bottom, BorderLayout.SOUTH);
 
-            list.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-                public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                    applyButton.setEnabled(list.getSelectionModel().getMaxSelectionIndex() >= 0);
-                }
-            });
+            list.getSelectionModel().addListSelectionListener(listSelectionEvent -> applyButton.setEnabled(list.getSelectionModel().getMaxSelectionIndex() >= 0));
 
             if (loadList(list) > 0)
                 setVisible(true);

@@ -22,8 +22,8 @@ import javafx.application.Platform;
 import javafx.scene.control.ChoiceDialog;
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.core.Director;
 import megan.core.Document;
@@ -51,7 +51,7 @@ public class GroupSamplesByCommand extends CommandBase implements ICommand {
 
         java.util.Collection<String> samples;
         if (getViewer() instanceof SamplesViewer) {
-            samples = ((SamplesViewer) getViewer()).getSamplesTable().getSelectedSamples();
+            samples = ((SamplesViewer) getViewer()).getSamplesTableView().getSelectedSamples();
         } else
             samples = doc.getSampleAttributeTable().getSampleSet();
 
@@ -74,35 +74,27 @@ public class GroupSamplesByCommand extends CommandBase implements ICommand {
 
         if (attributes.size() > 0) {
             final JFrame frame = getViewer().getFrame();
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    String defaultChoice = ProgramProperties.get("SetByAttribute", "");
+            Platform.runLater(() -> {
+                String defaultChoice = ProgramProperties.get("SetByAttribute", "");
 
-                    if (!attributes.contains(defaultChoice))
-                        defaultChoice = attributes.get(0);
+                if (!attributes.contains(defaultChoice))
+                    defaultChoice = attributes.get(0);
 
-                    ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, attributes);
+                ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, attributes);
 
-                    dialog.setTitle("MEGAN6 " + getViewer().getClassName() + " choice");
-                    dialog.setHeaderText("Select attribute to group by");
-                    dialog.setContentText("Choose attribute:");
+                dialog.setTitle("MEGAN6 " + getViewer().getClassName() + " choice");
+                dialog.setHeaderText("Select attribute to group by");
+                dialog.setContentText("Choose attribute:");
 
-                    if (frame != null) {
-                        dialog.setX(frame.getX() + (frame.getWidth() - 200) / 2);
-                        dialog.setY(frame.getY() + (frame.getHeight() - 200) / 2);
-                    }
+                if (frame != null) {
+                    dialog.setX(frame.getX() + (frame.getWidth() - 200) / 2);
+                    dialog.setY(frame.getY() + (frame.getHeight() - 200) / 2);
+                }
 
-                    final Optional<String> result = dialog.showAndWait();
-                    if (result.isPresent()) {
-                        final String choice = result.get();
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                execute("groupBy attribute='" + choice + "';show window=groups;");
-                            }
-                        });
-                    }
+                final Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    final String choice = result.get();
+                    SwingUtilities.invokeLater(() -> execute("groupBy attribute='" + choice + "';show window=groups;"));
                 }
             });
         }

@@ -79,7 +79,7 @@ public class CollapseNodesCommand extends CommandBase implements ICommand {
         return "Collapse";
     }
 
-    public static final String ALTNAME = "Collapse Inspector";
+    private static final String ALTNAME = "Collapse Inspector";
 
     public String getAltName() {
         return ALTNAME;
@@ -110,7 +110,7 @@ public class CollapseNodesCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_K, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_K, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 
     /**

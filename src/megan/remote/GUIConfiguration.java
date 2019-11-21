@@ -18,14 +18,13 @@
  */
 package megan.remote;
 
-import jloda.swing.util.MenuConfiguration;
-import jloda.swing.util.ProgramProperties;
+import jloda.swing.window.MenuConfiguration;
 
 /**
  * configuration for menu and toolbar
  * Daniel Huson, 7.2010
  */
-public class GUIConfiguration {
+class GUIConfiguration {
 
     /**
      * get the menu configuration
@@ -45,7 +44,7 @@ public class GUIConfiguration {
 
         menuConfig.defineMenu("Window", "Close All Other Windows...;|;Reset Window Location;Set Window Size...;|;Message Window...;|;");
 
-        menuConfig.defineMenu("Help", "About...;How to Cite...;|;Community Website...;Reference Manual...;" + ProgramProperties.getIfEnabled("usingInstall4j", "|;Check For Updates...;"));
+        menuConfig.defineMenu("Help", "About...;How to Cite...;|;Community Website...;Reference Manual...;|;Check For Updates...;");
 
         return menuConfig;
     }

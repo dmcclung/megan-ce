@@ -33,7 +33,7 @@ import java.awt.event.ActionEvent;
  * Daniel Huson, 6.2010
  */
 public class ShowMessageWindowCommand extends CommandBase implements ICommand {
-    final public static String NAME = "Message Window...";
+    private final static String NAME = "Message Window...";
 
     /**
      * get the name to be used as a menu label
@@ -59,7 +59,7 @@ public class ShowMessageWindowCommand extends CommandBase implements ICommand {
      * @return icon
      */
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/History16.gif");
+        return ResourceManager.getIcon("sun/History16.gif");
     }
 
     /**

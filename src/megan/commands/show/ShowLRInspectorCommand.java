@@ -41,7 +41,7 @@ import java.util.Map;
  * Daniel Huson, 2.2107
  */
 public class ShowLRInspectorCommand extends CommandBase implements ICommand {
-    private static Map<Pair<String, Integer>, LRInspectorViewer> classification2viewer = new HashMap<>();
+    private static final Map<Pair<String, Integer>, LRInspectorViewer> classification2viewer = new HashMap<>();
 
     /**
      * parses the given command and executes it
@@ -85,12 +85,7 @@ public class ShowLRInspectorCommand extends CommandBase implements ICommand {
                     }
                     if (alwaysNew || viewer == null) {
                         viewer = new LRInspectorViewer(parentViewer.getFrame(), parentViewer, classId);
-                        viewer.setRunOnDestroy(new Runnable() {
-                            @Override
-                            public void run() {
-                                classification2viewer.keySet().remove(pair);
-                            }
-                        });
+                        viewer.setRunOnDestroy(() -> classification2viewer.keySet().remove(pair));
                         classification2viewer.put(pair, viewer);
                         dir.addViewer(viewer);
                     }
@@ -119,7 +114,7 @@ public class ShowLRInspectorCommand extends CommandBase implements ICommand {
         executeImmediately("show window=longReadInspector" + ((ev.getModifiers() & ActionEvent.SHIFT_MASK) == 0 ? ";" : " alwaysNew=false;"));
     }
 
-    public static final String NAME = "Inspect Long Reads...";
+    private static final String NAME = "Inspect Long Reads...";
 
     public String getName() {
         return NAME;
@@ -150,7 +145,7 @@ public class ShowLRInspectorCommand extends CommandBase implements ICommand {
      * @return accelerator key
      */
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_I, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | java.awt.event.InputEvent.SHIFT_MASK);
+        return KeyStroke.getKeyStroke(KeyEvent.VK_I, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | java.awt.event.InputEvent.SHIFT_DOWN_MASK);
     }
 
     /**

@@ -20,8 +20,8 @@ package megan.alignment.commands;
 
 import jloda.swing.commands.CommandBase;
 import jloda.swing.commands.ICommand;
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
+import jloda.util.ProgramProperties;
 import jloda.util.parse.NexusStreamParser;
 import megan.alignment.AlignmentViewer;
 import megan.alignment.gui.Alignment;
@@ -94,7 +94,7 @@ public class FindReadCommand extends CommandBase implements ICommand {
         return true;
     }
 
-    public static String NAME = "Find Read...";
+    public static final String NAME = "Find Read...";
 
     public String getName() {
         return NAME;
@@ -105,7 +105,7 @@ public class FindReadCommand extends CommandBase implements ICommand {
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Find16.gif");
+        return ResourceManager.getIcon("sun/Find16.gif");
     }
 
     public boolean isCritical() {
@@ -113,6 +113,6 @@ public class FindReadCommand extends CommandBase implements ICommand {
     }
 
     public KeyStroke getAcceleratorKey() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        return KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
     }
 }

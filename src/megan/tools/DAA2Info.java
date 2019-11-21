@@ -19,16 +19,14 @@
 package megan.tools;
 
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.CanceledException;
-import jloda.util.PeakMemoryUsageMonitor;
-import jloda.util.UsageException;
+import jloda.swing.util.ResourceManager;
+import jloda.util.*;
 import megan.classification.ClassificationManager;
 import megan.core.Document;
 import megan.daa.connector.DAAConnector;
 import megan.daa.io.DAAHeader;
 import megan.daa.io.DAAParser;
+import megan.main.Megan6;
 import megan.viewer.TaxonomyData;
 
 import java.io.*;
@@ -51,6 +49,7 @@ public class DAA2Info {
      */
     public static void main(String[] args) {
         try {
+            ResourceManager.addResourceRoot(Megan6.class, "megan.resources");
             ProgramProperties.setProgramName("DAA2Info");
             ProgramProperties.setProgramVersion(megan.main.Version.SHORT_DESCRIPTION);
 
@@ -72,7 +71,7 @@ public class DAA2Info {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public void run(String[] args) throws UsageException, IOException, ClassNotFoundException, CanceledException {
+    private void run(String[] args) throws UsageException, IOException, ClassNotFoundException, CanceledException {
         final ArgsOptions options = new ArgsOptions(args, this, "Analyses a DIAMOND file");
         options.setVersion(ProgramProperties.getProgramVersion());
         options.setLicense("Copyright (C) 2019 Daniel H. Huson. This program comes with ABSOLUTELY NO WARRANTY.");
@@ -86,8 +85,8 @@ public class DAA2Info {
         final boolean listGeneralInfo = options.getOption("-l", "list", "List general info about file", false);
         final boolean listMoreStuff = options.getOption("-m", "listMore", "List more info about file (if meganized)", false);
 
-        final Set<String> listClass2Count = new HashSet<>(options.getOption("-c2c", "class2count", "List class to count for named classification(s) (Possible values: " + Basic.toString(ClassificationManager.getAllSupportedClassifications(), " ") + ")", new ArrayList<String>()));
-        final Set<String> listRead2Class = new HashSet<>(options.getOption("-r2c", "read2class", "List read to class assignments for named classification(s) (Possible values: " + Basic.toString(ClassificationManager.getAllSupportedClassifications(), " ") + ")", new ArrayList<String>()));
+        final Set<String> listClass2Count = new HashSet<>(options.getOption("-c2c", "class2count", "List class to count for named classification(s) (Possible values: " + Basic.toString(ClassificationManager.getAllSupportedClassifications(), " ") + ")", new ArrayList<>()));
+        final Set<String> listRead2Class = new HashSet<>(options.getOption("-r2c", "read2class", "List read to class assignments for named classification(s) (Possible values: " + Basic.toString(ClassificationManager.getAllSupportedClassifications(), " ") + ")", new ArrayList<>()));
         final boolean reportNames = options.getOption("-n", "names", "Report class names rather than class Id numbers", false);
         final boolean reportPaths = options.getOption("-p", "paths", "Report class paths rather than class Id numbers", false);
         final boolean prefixRank = options.getOption("-r", "prefixRank", "When reporting class paths for taxonomy, prefix single letter to indicate taxonomic rank", false);

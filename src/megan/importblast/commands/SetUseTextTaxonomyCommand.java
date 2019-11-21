@@ -21,6 +21,7 @@ package megan.importblast.commands;
 import jloda.swing.commands.ICheckBoxCommand;
 import jloda.swing.util.ResourceManager;
 import jloda.util.parse.NexusStreamParser;
+import megan.classification.ClassificationManager;
 import megan.importblast.ImportBlastDialog;
 
 import javax.swing.*;
@@ -45,11 +46,11 @@ public class SetUseTextTaxonomyCommand extends jloda.swing.commands.CommandBase 
     }
 
     public void actionPerformed(ActionEvent event) {
-        execute("set useParseTextTaxonomy=" + (!isSelected()) + ";");
+        executeImmediately("set useParseTextTaxonomy=" + (!isSelected()) + ";");
     }
 
     public boolean isApplicable() {
-        return true;
+        return  !ClassificationManager.isUseFastAccessionMappingMode();
     }
 
     final public static String NAME = "Parse Taxon Names";
@@ -63,7 +64,7 @@ public class SetUseTextTaxonomyCommand extends jloda.swing.commands.CommandBase 
     }
 
     public ImageIcon getIcon() {
-        return ResourceManager.getIcon("sun/toolbarButtonGraphics/general/Preferences16.gif");
+        return ResourceManager.getIcon("sun/Preferences16.gif");
     }
 
     public boolean isCritical() {

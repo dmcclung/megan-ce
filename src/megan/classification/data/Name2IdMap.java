@@ -18,9 +18,9 @@
  */
 package megan.classification.data;
 
-import jloda.swing.util.ProgramProperties;
 import jloda.swing.util.ResourceManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import megan.data.IName2IdMap;
 
 import java.io.*;
@@ -211,7 +211,7 @@ public class Name2IdMap implements IName2IdMap {
     public void writeMapping(Writer w) throws IOException {
         w.write("# Mapping file, generated " + (new Date()) + "\n");
         for (Integer key : id2name.keySet()) {
-            w.write(key + "\t" + id2name.get(key) + "\n");
+            w.write(key + "\t" + id2name.get(key).replaceAll("\\s+"," ") + "\n");
         }
     }
 
